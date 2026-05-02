@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Hero } from "@/components/Hero";
 import { Row } from "@/components/Row";
+import { Top10Row } from "@/components/Top10Row";
 import { AnimeRow } from "@/components/AnimeRow";
 import { ProviderRow } from "@/components/ProviderRow";
 import { RecentlyWatched } from "@/components/RecentlyWatched";
@@ -11,9 +12,10 @@ import { HOME_PROVIDERS } from "@/lib/providers";
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [trending, popularMovies, popularTv, topMovies, topTv, nowPlaying, trendingAnime, popularAnime] =
+  const [trending, trendingToday, popularMovies, popularTv, topMovies, topTv, nowPlaying, trendingAnime, popularAnime] =
     await Promise.all([
       tmdbApi.trending("week"),
+      tmdbApi.trending("day"),
       tmdbApi.popularMovies(),
       tmdbApi.popularTv(),
       tmdbApi.topRatedMovies(),
@@ -32,6 +34,7 @@ export default async function HomePage() {
       {heroItems.length > 0 && <Hero items={heroItems} />}
       <div className="mx-auto max-w-7xl">
         <RecentlyWatched />
+        <Top10Row title="Top 10 Today" items={trendingToday.results} />
         <Row title="Trending This Week" items={trending.results} />
         <Row title="Now Playing" items={nowPlaying.results} forceType="movie" viewAllHref="/movies" />
         <Row title="Popular Movies" items={popularMovies.results} forceType="movie" viewAllHref="/movies" />

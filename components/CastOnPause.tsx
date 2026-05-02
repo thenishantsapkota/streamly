@@ -58,8 +58,10 @@ export function CastOnPause({
 
   return (
     <div
-      className={`relative mt-3 transition-all duration-300 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-1"
+      className={`relative transition-all duration-300 ease-out ${
+        visible
+          ? "mt-3 opacity-100 translate-y-0"
+          : "pointer-events-none mt-0 h-0 overflow-hidden opacity-0 -translate-y-1"
       }`}
       aria-hidden={!visible}
     >

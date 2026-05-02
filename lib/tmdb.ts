@@ -151,6 +151,30 @@ export const tmdbApi = {
 
   person: (id: number | string) => tmdb<PersonDetails>(`/person/${id}`),
 
+  trendingMovies: (window: "day" | "week" = "week") =>
+    tmdb<{ results: MediaItem[] }>(`/trending/movie/${window}`),
+
+  trendingTv: (window: "day" | "week" = "week") =>
+    tmdb<{ results: MediaItem[] }>(`/trending/tv/${window}`),
+
+  discoverByGenre: (type: "movie" | "tv", genreId: number, page = 1) =>
+    tmdb<{ results: MediaItem[] }>(`/discover/${type}`, {
+      with_genres: genreId,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      include_adult: "false",
+      page,
+    }),
+
+  discoverByCountry: (type: "movie" | "tv", countryCode: string, page = 1) =>
+    tmdb<{ results: MediaItem[] }>(`/discover/${type}`, {
+      with_origin_country: countryCode,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 10,
+      include_adult: "false",
+      page,
+    }),
+
   /**
    * Discover popular movies/TV available on a given streaming provider in a
    * region. Used to power the platform "exclusives" rows.

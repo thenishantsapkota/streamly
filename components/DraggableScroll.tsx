@@ -93,7 +93,7 @@ export function DraggableScroll({ children, className = "" }: Props) {
     <div
       ref={ref}
       className={className}
-      style={{ touchAction: "pan-x", cursor: "grab" }}
+      style={{ touchAction: "manipulation", cursor: "grab" }}
     >
       {children}
     </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
+import { GENRES } from "@/lib/genres";
 
 type Suggestion = {
   id: number;
@@ -27,8 +28,11 @@ export function Navbar() {
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(-1);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const genreTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [genreHover, setGenreHover] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -41,6 +45,7 @@ export function Navbar() {
     setQ(params.get("q") ?? "");
     setOpen(false);
     setMobileOpen(false);
+    setMobileGenresOpen(false);
   }, [params, pathname]);
 
   // Close mobile menu on Escape
@@ -124,12 +129,12 @@ export function Navbar() {
   }
 
   const link = (href: string, label: string) => {
-    const active = pathname === href;
+    const isActive = pathname === href;
     return (
       <Link
         href={href}
         className={`text-sm transition-colors ${
-          active ? "text-white" : "text-text-dim hover:text-white"
+          isActive ? "text-white" : "text-text-dim hover:text-white"
         }`}
       >
         {label}
@@ -140,6 +145,14 @@ export function Navbar() {
   const showDropdown = open && q.trim().length >= 2;
 
   if (pathname === "/login") return null;
+
+  const genreMenuEnter = () => {
+    clearTimeout(genreTimeout.current);
+    setGenreHover(true);
+  };
+  const genreMenuLeave = () => {
+    genreTimeout.current = setTimeout(() => setGenreHover(false), 150);
+  };
 
   return (
     <header
@@ -158,6 +171,77 @@ export function Navbar() {
           {link("/movies", "Movies")}
           {link("/tv", "TV Shows")}
           {link("/anime", "Anime")}
+
+          {/* Genres dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={genreMenuEnter}
+            onMouseLeave={genreMenuLeave}
+          >
+            <button
+              type="button"
+              className={`text-sm transition-colors flex items-center gap-1 ${
+                pathname.startsWith("/genre")
+                  ? "text-white"
+                  : "text-text-dim hover:text-white"
+              }`}
+            >
+              Genres
+              <svg
+                className={`size-3.5 transition-transform ${genreHover ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {genreHover && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2">
+                <div className="w-[420px] rounded-xl border border-border bg-surface/95 backdrop-blur-xl shadow-2xl p-4">
+                  <div className="grid grid-cols-3 gap-1">
+                    {GENRES.map((g) => (
+                      <Link
+                        key={g.slug}
+                        href={`/genre/${g.slug}`}
+                        className={`rounded-lg px-3 py-2 text-sm transition ${
+                          pathname === `/genre/${g.slug}`
+                            ? "bg-brand/20 text-white"
+                            : "text-text-dim hover:bg-surface-2 hover:text-white"
+                        }`}
+                      >
+                        {g.name}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-border flex items-center gap-4">
+                    <Link
+                      href="/country"
+                      className="text-sm text-text-dim hover:text-white transition flex items-center gap-1.5"
+                    >
+                      <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                      Browse by Country
+                    </Link>
+                    <Link
+                      href="/trending"
+                      className="text-sm text-text-dim hover:text-white transition flex items-center gap-1.5"
+                    >
+                      <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      Trending
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {link("/exclusives", "Exclusives")}
         </nav>
         <form onSubmit={onSubmit} className="ml-auto flex-1 max-w-sm min-w-0">
@@ -238,7 +322,7 @@ export function Navbar() {
                         }}
                         className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-text-dim hover:bg-surface-2 hover:text-white"
                       >
-                        <span>See all results for “{q.trim()}”</span>
+                        <span>See all results for "{q.trim()}"</span>
                         <span aria-hidden>→</span>
                       </button>
                     </li>
@@ -275,16 +359,75 @@ export function Navbar() {
               ["/movies", "Movies"],
               ["/tv", "TV Shows"],
               ["/anime", "Anime"],
-              ["/exclusives", "Exclusives"],
             ].map(([href, label]) => {
-              const active = pathname === href;
+              const isActive = pathname === href;
               return (
                 <Link
                   key={href}
                   href={href}
                   onClick={() => setMobileOpen(false)}
                   className={`rounded-lg px-3 py-2.5 text-sm transition ${
-                    active ? "bg-surface-2 text-white" : "text-text-dim hover:bg-surface-2 hover:text-white"
+                    isActive ? "bg-surface-2 text-white" : "text-text-dim hover:bg-surface-2 hover:text-white"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+
+            {/* Genres accordion */}
+            <button
+              type="button"
+              onClick={() => setMobileGenresOpen((o) => !o)}
+              className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${
+                pathname.startsWith("/genre")
+                  ? "bg-surface-2 text-white"
+                  : "text-text-dim hover:bg-surface-2 hover:text-white"
+              }`}
+            >
+              Genres
+              <svg
+                className={`size-4 transition-transform ${mobileGenresOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {mobileGenresOpen && (
+              <div className="grid grid-cols-2 gap-1 px-1 py-1">
+                {GENRES.map((g) => (
+                  <Link
+                    key={g.slug}
+                    href={`/genre/${g.slug}`}
+                    onClick={() => setMobileOpen(false)}
+                    className={`rounded-lg px-3 py-2 text-sm transition ${
+                      pathname === `/genre/${g.slug}`
+                        ? "bg-brand/20 text-white"
+                        : "text-text-dim hover:bg-surface-2 hover:text-white"
+                    }`}
+                  >
+                    {g.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {[
+              ["/country", "Country"],
+              ["/trending", "Trending"],
+              ["/exclusives", "Exclusives"],
+            ].map(([href, label]) => {
+              const isActive = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm transition ${
+                    isActive ? "bg-surface-2 text-white" : "text-text-dim hover:bg-surface-2 hover:text-white"
                   }`}
                 >
                   {label}
