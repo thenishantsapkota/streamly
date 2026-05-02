@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Navbar } from "./Navbar";
+import { RegisterSW } from "./RegisterSW";
 
 const CHROMELESS_ROUTES = new Set(["/login"]);
 
@@ -14,6 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <RegisterSW />
       <Suspense fallback={<div className="fixed inset-x-0 top-0 z-50 h-16" />}>
         <Navbar />
       </Suspense>

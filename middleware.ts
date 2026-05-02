@@ -76,7 +76,22 @@ function escapeHtml(s: string) {
 }
 
 // Paths that are reachable without authentication.
-const PUBLIC_PATHS = new Set(["/login", "/api/login", "/api/logout"]);
+const PUBLIC_PATHS = new Set([
+  "/login",
+  "/api/login",
+  "/api/logout",
+  // PWA assets — must be reachable so the install prompt + SW can register
+  // before the user has logged in.
+  "/sw.js",
+  "/manifest.webmanifest",
+  "/icon.svg",
+  "/icon-192",
+  "/icon-512",
+  "/icon-maskable",
+  "/apple-icon.png",
+  "/robots.txt",
+  "/sitemap.xml",
+]);
 
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
