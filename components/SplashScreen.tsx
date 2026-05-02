@@ -1,9 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { tmdbClient, anilistClient } from "@/lib/api-client";
+import { qk } from "@/lib/query-keys";
 
 export function SplashScreen() {
   const [phase, setPhase] = useState<"in" | "zoom" | "done">("in");
+  const queryClient = useQueryClient();
+
+  // Prefetch home page data while the splash animation plays
+  useEffect(() => {
+    queryClient.prefetchQuery({ queryKey: qk.trending("week"), queryFn: () => tmdbClient.trending("week") });
+    queryClient.prefetchQuery({ queryKey: qk.trending("day"), queryFn: () => tmdbClient.trending("day") });
+    queryClient.prefetchQuery({ queryKey: qk.popularMovies(), queryFn: () => tmdbClient.popularMovies() });
+    queryClient.prefetchQuery({ queryKey: qk.popularTv(), queryFn: () => tmdbClient.popularTv() });
+    queryClient.prefetchQuery({ queryKey: qk.topRatedMovies(), queryFn: () => tmdbClient.topRatedMovies() });
+    queryClient.prefetchQuery({ queryKey: qk.topRatedTv(), queryFn: () => tmdbClient.topRatedTv() });
+    queryClient.prefetchQuery({ queryKey: qk.nowPlayingMovies(), queryFn: () => tmdbClient.nowPlayingMovies() });
+    queryClient.prefetchQuery({ queryKey: qk.trendingAnime(), queryFn: () => anilistClient.trending(20) });
+    queryClient.prefetchQuery({ queryKey: qk.popularAnime(), queryFn: () => anilistClient.popular(20) });
+  }, [queryClient]);
 
   useEffect(() => {
     const zoomTimer = setTimeout(() => setPhase("zoom"), 1200);

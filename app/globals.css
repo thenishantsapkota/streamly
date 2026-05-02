@@ -59,9 +59,9 @@ body {
   100% { background-position: 400px 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, #1c1c24 0px, #2a2a35 200px, #1c1c24 400px);
+  background: linear-gradient(90deg, #111116 0px, #1a1a22 200px, #111116 400px);
   background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
+  animation: shimmer 2s infinite linear;
 }
 
 /* Splash screen */
@@ -96,4 +96,13 @@ body {
 
 .splash-stroke-delay {
   animation-delay: 0.4s;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .splash-fade-in,
+  .splash-zoom-out,
+  .splash-stroke-draw {
+    animation: none;
+  }
 }

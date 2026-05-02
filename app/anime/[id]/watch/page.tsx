@@ -101,6 +101,7 @@ export default async function AnimeWatchPage({
             malId={a.idMal}
             totalEpisodes={getEpisodeCount(a)}
             activeEpisode={episode}
+            streamingEpisodes={a.streamingEpisodes}
           />
         </div>
       )}

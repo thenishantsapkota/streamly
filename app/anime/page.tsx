@@ -1,5 +1,4 @@
-import { AnimeHero } from "@/components/AnimeHero";
-import { AnimeRow } from "@/components/AnimeRow";
+import { AnimeIndexContent } from "./AnimeIndexContent";
 import { anilistApi } from "@/lib/anilist";
 
 export const revalidate = 3600;
@@ -16,17 +15,6 @@ export default async function AnimeIndexPage() {
     anilistApi.popular(24),
     anilistApi.topRated(24),
   ]);
-  return (
-    <div className="-mt-16">
-      <AnimeHero items={trending} />
-      <div className="mx-auto max-w-7xl">
-        <p className="mt-4 px-4 sm:px-6 text-sm text-text-dim">
-          Subbed and dubbed versions are auto-detected by the player when available.
-        </p>
-        <AnimeRow title="Trending Now" items={trending} viewAllHref="/anime/trending" />
-        <AnimeRow title="Most Popular" items={popular} viewAllHref="/anime/popular" />
-        <AnimeRow title="Top Rated" items={topRated} viewAllHref="/anime/top-rated" />
-      </div>
-    </div>
-  );
+
+  return <AnimeIndexContent initial={{ trending, popular, topRated }} />;
 }

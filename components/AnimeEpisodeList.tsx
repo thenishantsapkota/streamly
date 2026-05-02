@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { StreamingEpisode } from "@/lib/anilist";
 
 const PAGE_SIZE = 50;
 const FALLBACK_BLOCKS = 50;
@@ -14,6 +15,7 @@ export function AnimeEpisodeList({
   malId,
   totalEpisodes,
   activeEpisode,
+  streamingEpisodes,
 }: {
   animeId: number;
   /** MyAnimeList id used to fetch filler info from Jikan */
@@ -21,6 +23,8 @@ export function AnimeEpisodeList({
   /** AniList may return null for ongoing/long-running shows. */
   totalEpisodes: number | null;
   activeEpisode?: number;
+  /** Episode metadata from AniList (titles + thumbnails) */
+  streamingEpisodes?: StreamingEpisode[] | null;
 }) {
   const known = totalEpisodes != null && totalEpisodes > 0;
   const [extraPages, setExtraPages] = useState(0);
@@ -34,8 +38,17 @@ export function AnimeEpisodeList({
   const end = Math.min(effectiveTotal, (page + 1) * PAGE_SIZE);
   const eps = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
-  // Fetch Jikan filler info for the visible range. Jikan pages hold 100
-  // episodes each, so the visible range may span 1–2 jikan pages.
+  // Build a map of episode number -> streaming episode info
+  const epInfoMap = new Map<number, StreamingEpisode>();
+  if (streamingEpisodes) {
+    for (let i = 0; i < streamingEpisodes.length; i++) {
+      epInfoMap.set(i + 1, streamingEpisodes[i]);
+    }
+  }
+
+  const hasEpInfo = epInfoMap.size > 0;
+
+  // Fetch Jikan filler info for the visible range
   const [fillerByEp, setFillerByEp] = useState<FillerMap>({});
   useEffect(() => {
     if (!malId) return;
@@ -58,7 +71,6 @@ export function AnimeEpisodeList({
         const next = { ...prev };
         for (const { data } of results) {
           for (const e of data) {
-            // Jikan's `mal_id` on this endpoint is the episode number.
             next[e.mal_id] = { filler: !!e.filler, recap: !!e.recap };
           }
         }
@@ -69,6 +81,18 @@ export function AnimeEpisodeList({
       cancelled = true;
     };
   }, [malId, start, end]);
+
+  // Extract episode title from AniList streaming episode title
+  // Titles come in format like "Episode 1 - Title" or just the title
+  function getEpTitle(ep: StreamingEpisode | undefined, epNum: number): string | null {
+    if (!ep?.title) return null;
+    // Try to extract just the title portion after "Episode X - "
+    const match = ep.title.match(/(?:Episode\s+\d+\s*[-–:]\s*)(.*)/i);
+    if (match?.[1]) return match[1];
+    // If it's already just the title (no "Episode X" prefix)
+    if (!ep.title.toLowerCase().startsWith("episode")) return ep.title;
+    return null;
+  }
 
   return (
     <section className="mt-4 px-4 sm:px-6">
@@ -107,41 +131,111 @@ export function AnimeEpisodeList({
           marks filler episodes (data from MyAnimeList).
         </p>
       )}
-      <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-10 gap-2">
-        {eps.map((n) => {
-          const active = n === activeEpisode;
-          const meta = fillerByEp[n];
-          return (
-            <Link
-              key={n}
-              href={`/anime/${animeId}/watch?e=${n}`}
-              className={`relative flex h-12 items-center justify-center rounded-md border text-sm font-medium transition ${
-                active
-                  ? "border-brand bg-brand/15 text-white"
-                  : "border-border bg-surface text-text-dim hover:border-brand/60 hover:text-white"
-              }`}
-            >
-              {n}
-              {meta?.filler && (
-                <span
-                  title="Filler episode"
-                  className="absolute top-1 right-1 inline-flex size-4 items-center justify-center rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono font-semibold"
-                >
-                  F
-                </span>
-              )}
-              {meta?.recap && !meta?.filler && (
-                <span
-                  title="Recap"
-                  className="absolute top-1 right-1 inline-flex size-4 items-center justify-center rounded bg-sky-500/20 text-sky-300 text-[9px] font-mono font-semibold"
-                >
-                  R
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </div>
+
+      {/* Rich episode list with thumbnails (when available) */}
+      {hasEpInfo ? (
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {eps.map((n) => {
+            const active = n === activeEpisode;
+            const meta = fillerByEp[n];
+            const epInfo = epInfoMap.get(n);
+            const title = getEpTitle(epInfo, n);
+            const thumb = epInfo?.thumbnail;
+
+            return (
+              <Link
+                key={n}
+                href={`/anime/${animeId}/watch?e=${n}`}
+                className={`group relative flex gap-3 rounded-lg border p-2 transition ${
+                  active
+                    ? "border-brand bg-brand/10"
+                    : "border-border bg-surface hover:border-brand/50 hover:bg-surface-2"
+                }`}
+              >
+                <div className="relative w-28 sm:w-32 shrink-0 overflow-hidden rounded-md bg-surface-2 aspect-video">
+                  {thumb ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={thumb}
+                      alt={`Episode ${n}`}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-text-dim">
+                      E{n}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <div className="rounded-full bg-white/90 p-1.5 text-black">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1 py-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-medium ${active ? "text-brand" : ""}`}>
+                      Episode {n}
+                    </span>
+                    {meta?.filler && (
+                      <span className="inline-flex items-center rounded bg-amber-500/20 text-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-semibold">
+                        FILLER
+                      </span>
+                    )}
+                    {meta?.recap && !meta?.filler && (
+                      <span className="inline-flex items-center rounded bg-sky-500/20 text-sky-300 px-1.5 py-0.5 text-[9px] font-mono font-semibold">
+                        RECAP
+                      </span>
+                    )}
+                  </div>
+                  {title && (
+                    <p className="mt-0.5 text-xs text-text-dim line-clamp-2">{title}</p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        /* Compact numbered grid when no episode info available */
+        <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-10 gap-2">
+          {eps.map((n) => {
+            const active = n === activeEpisode;
+            const meta = fillerByEp[n];
+            return (
+              <Link
+                key={n}
+                href={`/anime/${animeId}/watch?e=${n}`}
+                className={`relative flex h-12 items-center justify-center rounded-md border text-sm font-medium transition ${
+                  active
+                    ? "border-brand bg-brand/15 text-white"
+                    : "border-border bg-surface text-text-dim hover:border-brand/60 hover:text-white"
+                }`}
+              >
+                {n}
+                {meta?.filler && (
+                  <span
+                    title="Filler episode"
+                    className="absolute top-1 right-1 inline-flex size-4 items-center justify-center rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono font-semibold"
+                  >
+                    F
+                  </span>
+                )}
+                {meta?.recap && !meta?.filler && (
+                  <span
+                    title="Recap"
+                    className="absolute top-1 right-1 inline-flex size-4 items-center justify-center rounded bg-sky-500/20 text-sky-300 text-[9px] font-mono font-semibold"
+                  >
+                    R
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
       {!known && (
         <div className="mt-3 flex justify-center">
           <button

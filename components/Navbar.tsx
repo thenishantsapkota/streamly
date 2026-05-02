@@ -244,7 +244,20 @@ export function Navbar() {
 
           {link("/exclusives", "Exclusives")}
         </nav>
-        <form onSubmit={onSubmit} className="ml-auto flex-1 max-w-sm min-w-0">
+        <Link
+          href="/my-list"
+          aria-label="My List"
+          className={`hidden sm:inline-flex ml-auto items-center justify-center size-9 rounded-full transition ${
+            pathname === "/my-list"
+              ? "text-white bg-surface-2"
+              : "text-text-dim hover:text-white hover:bg-surface-2"
+          }`}
+        >
+          <svg viewBox="0 0 24 24" fill={pathname === "/my-list" ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} className="size-5">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
+        <form onSubmit={onSubmit} className="sm:ml-0 ml-auto flex-1 max-w-sm min-w-0">
           <div ref={wrapRef} className="relative">
             <input
               ref={inputRef}
@@ -416,6 +429,7 @@ export function Navbar() {
             )}
 
             {[
+              ["/my-list", "My List"],
               ["/country", "Country"],
               ["/trending", "Trending"],
               ["/exclusives", "Exclusives"],

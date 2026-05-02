@@ -96,6 +96,43 @@ export interface PersonDetails {
   profile_path: string | null;
 }
 
+export interface Video {
+  id: string;
+  key: string;
+  name: string;
+  site: string;
+  type: string;
+  official: boolean;
+}
+
+export interface WatchProvider {
+  logo_path: string;
+  provider_id: number;
+  provider_name: string;
+}
+
+export interface WatchProviderResult {
+  results: Record<string, {
+    link?: string;
+    flatrate?: WatchProvider[];
+    rent?: WatchProvider[];
+    buy?: WatchProvider[];
+  }>;
+}
+
+export interface CrewMember {
+  id: number;
+  name: string;
+  job: string;
+  department: string;
+  profile_path: string | null;
+}
+
+export interface PersonCredits {
+  cast: Array<MediaItem & { character?: string; media_type: MediaType }>;
+  crew: Array<MediaItem & { job?: string; media_type: MediaType }>;
+}
+
 export function profileUrl(path: string | null, size: "w185" | "h632" | "original" = "w185") {
   if (!path) return null;
   return `${IMG}/${size}${path}`;
@@ -145,11 +182,23 @@ export const tmdbApi = {
     tmdb<{ results: MediaItem[] }>(`/tv/${id}/recommendations`),
 
   movieCredits: (id: number | string) =>
-    tmdb<{ cast: CastMember[] }>(`/movie/${id}/credits`),
+    tmdb<{ cast: CastMember[]; crew: CrewMember[] }>(`/movie/${id}/credits`),
   tvCredits: (id: number | string) =>
-    tmdb<{ cast: CastMember[] }>(`/tv/${id}/credits`),
+    tmdb<{ cast: CastMember[]; crew: CrewMember[] }>(`/tv/${id}/credits`),
 
   person: (id: number | string) => tmdb<PersonDetails>(`/person/${id}`),
+  personCredits: (id: number | string) =>
+    tmdb<PersonCredits>(`/person/${id}/combined_credits`),
+
+  movieVideos: (id: number | string) =>
+    tmdb<{ results: Video[] }>(`/movie/${id}/videos`),
+  tvVideos: (id: number | string) =>
+    tmdb<{ results: Video[] }>(`/tv/${id}/videos`),
+
+  movieWatchProviders: (id: number | string) =>
+    tmdb<WatchProviderResult>(`/movie/${id}/watch/providers`),
+  tvWatchProviders: (id: number | string) =>
+    tmdb<WatchProviderResult>(`/tv/${id}/watch/providers`),
 
   trendingMovies: (window: "day" | "week" = "week") =>
     tmdb<{ results: MediaItem[] }>(`/trending/movie/${window}`),
