@@ -2,7 +2,8 @@ import Link from "next/link";
 import { DetailsHeader } from "@/components/DetailsHeader";
 import { Row } from "@/components/Row";
 import { SeasonPicker } from "@/components/SeasonPicker";
-import { tmdbApi } from "@/lib/tmdb";
+import { isAnimeTv, tmdbApi } from "@/lib/tmdb";
+import { anilistApi } from "@/lib/anilist";
 
 export const revalidate = 3600;
 
@@ -41,6 +42,18 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
   const [tv, recs] = await Promise.all([tmdbApi.tv(id), tmdbApi.tvRecs(id)]);
   const firstSeason = tv.seasons.find((s) => s.season_number > 0)?.season_number ?? 1;
 
+  // If the show is anime, look up its AniList entry to enable filler badges in
+  // the SeasonPicker. Best-effort: a failed lookup just means no badges.
+  let malId: number | null = null;
+  if (isAnimeTv(tv)) {
+    try {
+      const matches = await anilistApi.search(tv.original_name || tv.name || "", 1);
+      malId = matches[0]?.idMal ?? null;
+    } catch {
+      malId = null;
+    }
+  }
+
   return (
     <div className="pb-12">
       <DetailsHeader
@@ -70,7 +83,7 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
             Play S{firstSeason} · E1
           </Link>
         </div>
-        <SeasonPicker tvId={numId} seasons={tv.seasons} initialSeason={firstSeason} />
+        <SeasonPicker tvId={numId} seasons={tv.seasons} initialSeason={firstSeason} malId={malId} />
         <Row title="More Like This" items={recs.results} forceType="tv" />
       </div>
     </div>

@@ -57,6 +57,17 @@ export interface TvDetails extends MediaItem {
   tagline: string;
   status: string;
   seasons: Season[];
+  original_language?: string;
+  original_name?: string;
+  origin_country?: string[];
+}
+
+/** Heuristic: TMDB shows that are Animation + Japanese-origin are anime. */
+export function isAnimeTv(tv: Pick<TvDetails, "genres" | "original_language" | "origin_country">): boolean {
+  const isAnimation = tv.genres?.some((g) => g.id === 16);
+  const isJapanese =
+    tv.original_language === "ja" || (tv.origin_country?.includes("JP") ?? false);
+  return !!(isAnimation && isJapanese);
 }
 
 export interface SeasonDetails {

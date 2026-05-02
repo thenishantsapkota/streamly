@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Player } from "@/components/Player";
 import { SeasonPicker } from "@/components/SeasonPicker";
+import { EpisodeNav } from "@/components/EpisodeNav";
 import type { CastEntry } from "@/components/CastOnPause";
-import { backdropUrl, posterUrl, profileUrl, tmdbApi } from "@/lib/tmdb";
+import { backdropUrl, isAnimeTv, posterUrl, profileUrl, tmdbApi } from "@/lib/tmdb";
+import { anilistApi } from "@/lib/anilist";
 
 export const revalidate = 3600;
 
@@ -38,6 +40,16 @@ export default async function TvWatchPage({
     tmdbApi.tvCredits(id).catch(() => ({ cast: [] })),
   ]);
 
+  let malId: number | null = null;
+  if (isAnimeTv(tv)) {
+    try {
+      const matches = await anilistApi.search(tv.original_name || tv.name || "", 1);
+      malId = matches[0]?.idMal ?? null;
+    } catch {
+      malId = null;
+    }
+  }
+
   const cast: CastEntry[] = credits.cast
     .slice(0, 20)
     .map((c) => ({
@@ -70,6 +82,12 @@ export default async function TvWatchPage({
           episode={episode}
           cast={cast}
         />
+        <EpisodeNav
+          tvId={numId}
+          seasons={tv.seasons}
+          currentSeason={season}
+          currentEpisode={episode}
+        />
       </div>
       <div className="mx-auto max-w-7xl">
         <SeasonPicker
@@ -77,6 +95,7 @@ export default async function TvWatchPage({
           seasons={tv.seasons}
           initialSeason={season}
           initialEpisode={episode}
+          malId={malId}
         />
       </div>
     </div>
