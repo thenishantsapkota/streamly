@@ -267,11 +267,24 @@ export function Player(props: Props) {
     autoFallbackUsedRef.current = false;
   }, [id, season, episode]);
 
+  // For anime + vidking we load the iframe with the TMDB id (not the AniList
+  // id) and the TMDB media type (movie/tv, not "anime"). The player echoes
+  // those values back in its events, so the filter below has to expect them
+  // — otherwise every event is dropped and the auto-fallback fires even
+  // though the source is responding.
+  const expectedId = isAnime && source === "vidking" && tmdbAlt ? tmdbAlt.id : id;
+  const expectedMediaType =
+    isAnime && source === "vidking" && tmdbAlt ? tmdbAlt.type : type;
+
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const normalized = normalizeMessage(e.data);
       if (!normalized) return;
-      if (String(normalized.id) !== String(id) || normalized.mediaType !== type) return;
+      if (
+        String(normalized.id) !== String(expectedId) ||
+        normalized.mediaType !== expectedMediaType
+      )
+        return;
 
       receivedEventRef.current = true;
       setShowFallbackHint(false);
@@ -314,7 +327,18 @@ export function Player(props: Props) {
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [id, type, title, poster, backdrop, season, episode, router]);
+  }, [
+    id,
+    type,
+    title,
+    poster,
+    backdrop,
+    season,
+    episode,
+    router,
+    expectedId,
+    expectedMediaType,
+  ]);
 
   function switchSource(next: Source) {
     if (next === source) return;
