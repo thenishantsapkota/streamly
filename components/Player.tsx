@@ -33,6 +33,7 @@ type Props = {
 type Source = "vidking" | "videasy";
 
 const SOURCE_PREF_KEY = "preferred-source-v1";
+const ANIME_SOURCE_PREF_KEY = "preferred-source-anime-v1";
 const FALLBACK_HINT_AFTER_MS = 12000;
 const AUTO_FALLBACK_AFTER_MS = 18000;
 
@@ -168,9 +169,12 @@ export function Player(props: Props) {
         ];
 
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
-  // Default to videasy for everything; users can switch to vidking via the
-  // source toggle (and that choice is remembered in localStorage).
-  const [source, setSource] = useState<Source>("videasy");
+  // Default: anime → vidking (when TMDB fallback exists), everything else → videasy.
+  // Users can switch via the source toggle and the choice is remembered per
+  // category (anime vs movies/tv) in localStorage.
+  const [source, setSource] = useState<Source>(
+    isAnime && animeHasTmdbFallback ? "vidking" : "videasy",
+  );
   const [showFallbackHint, setShowFallbackHint] = useState(false);
   const [autoFallbackToast, setAutoFallbackToast] = useState<string | null>(null);
   const lastSavedAt = useRef(0);
@@ -183,9 +187,14 @@ export function Player(props: Props) {
     if (isAnime && !animeHasTmdbFallback) {
       setSource("videasy");
     } else {
+      const key = isAnime ? ANIME_SOURCE_PREF_KEY : SOURCE_PREF_KEY;
       try {
-        const saved = window.localStorage.getItem(SOURCE_PREF_KEY) as Source | null;
-        if (saved === "vidking" || saved === "videasy") setSource(saved);
+        const saved = window.localStorage.getItem(key) as Source | null;
+        if (saved === "vidking" || saved === "videasy") {
+          setSource(saved);
+        } else {
+          setSource(isAnime ? "vidking" : "videasy");
+        }
       } catch {
         /* ignore */
       }
@@ -230,7 +239,10 @@ export function Player(props: Props) {
         `Source switched to ${next === "vidking" ? "Vidking" : "Videasy"} — original source didn't respond.`,
       );
       try {
-        window.localStorage.setItem(SOURCE_PREF_KEY, next);
+        window.localStorage.setItem(
+          isAnime ? ANIME_SOURCE_PREF_KEY : SOURCE_PREF_KEY,
+          next,
+        );
       } catch {
         /* ignore */
       }
@@ -309,7 +321,10 @@ export function Player(props: Props) {
     if (isAnime && !animeHasTmdbFallback) return;
     setSource(next);
     try {
-      window.localStorage.setItem(SOURCE_PREF_KEY, next);
+      window.localStorage.setItem(
+        isAnime ? ANIME_SOURCE_PREF_KEY : SOURCE_PREF_KEY,
+        next,
+      );
     } catch {
       /* ignore */
     }
