@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getWatched, upsertWatched, type WatchedItem } from "@/lib/storage";
 import { CastOnPause, type CastEntry } from "./CastOnPause";
 import { AdBlockerHint } from "./AdBlockerHint";
@@ -33,6 +34,7 @@ type Source = "vidking" | "videasy";
 
 const SOURCE_PREF_KEY = "preferred-source-v1";
 const FALLBACK_HINT_AFTER_MS = 12000;
+const AUTO_FALLBACK_AFTER_MS = 18000;
 
 type NormalizedEvent = {
   event?: string;
@@ -99,7 +101,7 @@ function buildSrc(source: Source, props: Props, resumeFrom: number): string {
         params.set("nextEpisode", "true");
         params.set("episodeSelector", "true");
       }
-      if (resumeFrom > 0) params.set("progress", String(resumeFrom));
+      params.set("progress", String(Math.max(0, resumeFrom)));
       return `${base}?${params.toString()}`;
     }
     // source === "vidking" — use the TMDB fallback (caller guarantees tmdbAlt exists
@@ -117,7 +119,7 @@ function buildSrc(source: Source, props: Props, resumeFrom: number): string {
       params.set("nextEpisode", "true");
       params.set("episodeSelector", "true");
     }
-    if (resumeFrom > 0) params.set("progress", String(resumeFrom));
+    params.set("progress", String(Math.max(0, resumeFrom)));
     return `${base}?${params.toString()}`;
   }
 
@@ -131,7 +133,7 @@ function buildSrc(source: Source, props: Props, resumeFrom: number): string {
       params.set("nextEpisode", "true");
       params.set("episodeSelector", "true");
     }
-    if (resumeFrom > 0) params.set("progress", String(resumeFrom));
+    params.set("progress", String(Math.max(0, resumeFrom)));
     return `${base}?${params.toString()}`;
   }
 
@@ -145,7 +147,7 @@ function buildSrc(source: Source, props: Props, resumeFrom: number): string {
     params.set("nextEpisode", "true");
     params.set("episodeSelector", "true");
   }
-  if (resumeFrom > 0) params.set("progress", String(resumeFrom));
+  params.set("progress", String(Math.max(0, resumeFrom)));
   return `${base}?${params.toString()}`;
 }
 
@@ -155,6 +157,7 @@ export function Player(props: Props) {
   const animeHasTmdbFallback = isAnime && !!tmdbAlt;
   const showSourceSwitcher = !isAnime || animeHasTmdbFallback;
   const [isPaused, setIsPaused] = useState(false);
+  const router = useRouter();
 
   const SOURCES: { id: Source; label: string }[] =
     isAnime && !animeHasTmdbFallback
@@ -169,9 +172,12 @@ export function Player(props: Props) {
     isAnime && !animeHasTmdbFallback ? "videasy" : "vidking",
   );
   const [showFallbackHint, setShowFallbackHint] = useState(false);
+  const [autoFallbackToast, setAutoFallbackToast] = useState<string | null>(null);
   const lastSavedAt = useRef(0);
   const receivedEventRef = useRef(false);
+  const autoFallbackUsedRef = useRef(false);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isAnime && !animeHasTmdbFallback) {
@@ -203,13 +209,51 @@ export function Player(props: Props) {
     setShowFallbackHint(false);
     setIsPaused(false);
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    if (autoFallbackTimerRef.current) clearTimeout(autoFallbackTimerRef.current);
+
     hintTimerRef.current = setTimeout(() => {
       if (!receivedEventRef.current) setShowFallbackHint(true);
     }, FALLBACK_HINT_AFTER_MS);
+
+    // After a longer timeout with still no `play`/`timeupdate`, automatically
+    // switch to the alternate source — but only once per page load and only
+    // when an alternate is actually available.
+    autoFallbackTimerRef.current = setTimeout(() => {
+      if (receivedEventRef.current) return;
+      if (autoFallbackUsedRef.current) return;
+      const canSwitch = !isAnime || animeHasTmdbFallback;
+      if (!canSwitch) return;
+      autoFallbackUsedRef.current = true;
+      const next: Source = source === "vidking" ? "videasy" : "vidking";
+      setSource(next);
+      setAutoFallbackToast(
+        `Source switched to ${next === "vidking" ? "Vidking" : "Videasy"} — original source didn't respond.`,
+      );
+      try {
+        window.localStorage.setItem(SOURCE_PREF_KEY, next);
+      } catch {
+        /* ignore */
+      }
+    }, AUTO_FALLBACK_AFTER_MS);
+
     return () => {
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+      if (autoFallbackTimerRef.current) clearTimeout(autoFallbackTimerRef.current);
     };
-  }, [src]);
+  }, [src, isAnime, animeHasTmdbFallback, source]);
+
+  // Auto-dismiss the toast after a few seconds.
+  useEffect(() => {
+    if (!autoFallbackToast) return;
+    const t = setTimeout(() => setAutoFallbackToast(null), 4500);
+    return () => clearTimeout(t);
+  }, [autoFallbackToast]);
+
+  // Reset the once-per-page auto-fallback budget when the user navigates to a
+  // different episode/movie.
+  useEffect(() => {
+    autoFallbackUsedRef.current = false;
+  }, [id, season, episode]);
 
   useEffect(() => {
     function onMessage(e: MessageEvent) {
@@ -223,6 +267,19 @@ export function Player(props: Props) {
       // Track pause/play to surface the cast panel.
       if (normalized.event === "pause") setIsPaused(true);
       else if (normalized.event === "play" || normalized.event === "ended") setIsPaused(false);
+
+      // Sync URL when the player auto-advances to a new episode (TV / anime).
+      // Without this, our SeasonPicker / page header / browser-back would all
+      // be stuck on the original episode while the iframe plays a different one.
+      const evtSeason = normalized.season;
+      const evtEpisode = normalized.episode;
+      if (type === "tv" && evtSeason && evtEpisode) {
+        if (evtSeason !== season || evtEpisode !== episode) {
+          router.replace(`/tv/${id}/watch?s=${evtSeason}&e=${evtEpisode}`, { scroll: false });
+        }
+      } else if (type === "anime" && evtEpisode && evtEpisode !== episode) {
+        router.replace(`/anime/${id}/watch?e=${evtEpisode}`, { scroll: false });
+      }
 
       const now = Date.now();
       if (normalized.event === "timeupdate" && now - lastSavedAt.current < 5000) return;
@@ -245,7 +302,7 @@ export function Player(props: Props) {
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [id, type, title, poster, backdrop, season, episode]);
+  }, [id, type, title, poster, backdrop, season, episode, router]);
 
   function switchSource(next: Source) {
     if (next === source) return;
@@ -299,6 +356,15 @@ export function Player(props: Props) {
           title={title}
         />
       </div>
+
+      {autoFallbackToast && (
+        <div
+          role="status"
+          className="mt-3 rounded-lg border border-brand/40 bg-brand/10 px-4 py-2.5 text-xs sm:text-sm text-white/90"
+        >
+          {autoFallbackToast}
+        </div>
+      )}
 
       {showFallbackHint && showSourceSwitcher && (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm">

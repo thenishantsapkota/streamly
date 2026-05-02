@@ -21,13 +21,27 @@ export function RecentlyWatched() {
     };
   }, []);
 
-  if (!mounted || items.length === 0) return null;
+  // Collapse to one entry per show: for TV/anime, the latest watched episode
+  // wins. Movies are always one-per-id by their storage key already.
+  const dedupedItems = (() => {
+    const seen = new Set<string>();
+    const out: WatchedItem[] = [];
+    for (const it of items) {
+      const key = `${it.type}-${it.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(it);
+    }
+    return out;
+  })();
+
+  if (!mounted || dedupedItems.length === 0) return null;
 
   return (
     <section className="mt-10">
       <h2 className="mb-3 px-4 sm:px-6 text-lg font-semibold tracking-tight">Continue Watching</h2>
       <DraggableScroll className="no-scrollbar flex gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
-        {items.map((it) => {
+        {dedupedItems.map((it) => {
           let href = `/${it.type}/${it.id}`;
           if (it.type === "tv" && it.season && it.episode) {
             href = `/tv/${it.id}/watch?s=${it.season}&e=${it.episode}`;
@@ -36,7 +50,7 @@ export function RecentlyWatched() {
           }
           const pct = Math.min(100, Math.max(0, Math.round(it.progress)));
           return (
-            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-60 sm:w-70 shrink-0">
+            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-44 sm:w-56 shrink-0">
               <Link href={href} className="block">
                 <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
                   {it.backdrop ? (
@@ -79,7 +93,13 @@ export function RecentlyWatched() {
               <button
                 aria-label="Remove from recently watched"
                 onClick={() => {
-                  removeWatched(it);
+                  // Remove every episode entry for this show so the card
+                  // doesn't reappear with the next-most-recent episode.
+                  const all = getRecentlyWatched();
+                  const toRemove = all.filter(
+                    (x) => x.type === it.type && x.id === it.id,
+                  );
+                  for (const x of toRemove) removeWatched(x);
                   setItems(getRecentlyWatched());
                 }}
                 className="absolute top-2 right-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 backdrop-blur transition hover:bg-black group-hover:opacity-100"
