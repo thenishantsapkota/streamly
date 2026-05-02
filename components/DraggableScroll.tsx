@@ -60,12 +60,29 @@ export function DraggableScroll({ children, className = "" }: Props) {
       }
     };
 
+    // Browsers natively start an HTML5 drag operation when the user mouses
+    // down on an <img> or <a> — that hijacks the gesture and our pointermove
+    // handler never gets to scroll the carousel. Cancelling dragstart lets the
+    // pointer events flow through normally.
+    const onDragStart = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    // While dragging the carousel, also suppress text selection so highlighting
+    // doesn't kick in mid-drag.
+    const onSelectStart = (e: Event) => {
+      if (isDown) e.preventDefault();
+    };
+
     el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("dragstart", onDragStart);
+    el.addEventListener("selectstart", onSelectStart);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("pointercancel", onPointerUp);
     return () => {
       el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("dragstart", onDragStart);
+      el.removeEventListener("selectstart", onSelectStart);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerUp);
