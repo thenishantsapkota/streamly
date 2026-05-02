@@ -33,9 +33,9 @@ export default async function HomePage() {
       <div className="mx-auto max-w-7xl">
         <RecentlyWatched />
         <Row title="Trending This Week" items={trending.results} />
-        <Row title="Now Playing" items={nowPlaying.results} forceType="movie" />
-        <Row title="Popular Movies" items={popularMovies.results} forceType="movie" />
-        <Row title="Popular TV Shows" items={popularTv.results} forceType="tv" />
+        <Row title="Now Playing" items={nowPlaying.results} forceType="movie" viewAllHref="/movies" />
+        <Row title="Popular Movies" items={popularMovies.results} forceType="movie" viewAllHref="/movies" />
+        <Row title="Popular TV Shows" items={popularTv.results} forceType="tv" viewAllHref="/tv" />
 
         <div className="mt-12 px-4 sm:px-6 flex items-baseline justify-between gap-3">
           <h2 className="text-xl font-bold tracking-tight">Streaming Exclusives</h2>
@@ -47,10 +47,10 @@ export default async function HomePage() {
           <ProviderRow key={p.slug} provider={p} variant="condensed" />
         ))}
 
-        <AnimeRow title="Trending Anime" items={trendingAnime} />
-        <AnimeRow title="Popular Anime" items={popularAnime} />
-        <Row title="Top Rated Movies" items={topMovies.results} forceType="movie" />
-        <Row title="Top Rated TV" items={topTv.results} forceType="tv" />
+        <AnimeRow title="Trending Anime" items={trendingAnime} viewAllHref="/anime" />
+        <AnimeRow title="Popular Anime" items={popularAnime} viewAllHref="/anime" />
+        <Row title="Top Rated Movies" items={topMovies.results} forceType="movie" viewAllHref="/movies" />
+        <Row title="Top Rated TV" items={topTv.results} forceType="tv" viewAllHref="/tv" />
       </div>
     </div>
   );

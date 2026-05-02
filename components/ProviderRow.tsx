@@ -24,6 +24,7 @@ export async function ProviderRow({ provider, variant = "condensed" }: Props) {
         title={`Exclusively on ${provider.name}`}
         items={movies.results}
         forceType="movie"
+        viewAllHref={`/exclusives#${provider.slug}`}
       />
     );
   }
