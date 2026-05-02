@@ -26,6 +26,7 @@ export function Navbar() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(-1);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,7 +40,18 @@ export function Navbar() {
   useEffect(() => {
     setQ(params.get("q") ?? "");
     setOpen(false);
-  }, [params]);
+    setMobileOpen(false);
+  }, [params, pathname]);
+
+  // Close mobile menu on Escape
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   // close on outside click
   useEffect(() => {
@@ -137,9 +149,9 @@ export function Navbar() {
           : "bg-linear-to-b from-black/70 to-transparent"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center gap-6">
-        <Link href="/" aria-label="Streamly home">
-          <Logo size={28} />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center gap-3 sm:gap-6">
+        <Link href="/" aria-label="Streamly home" className="shrink-0">
+          <Logo size={28} wordmarkResponsive />
         </Link>
         <nav className="hidden sm:flex items-center gap-5">
           {link("/", "Home")}
@@ -148,7 +160,7 @@ export function Navbar() {
           {link("/anime", "Anime")}
           {link("/exclusives", "Exclusives")}
         </nav>
-        <form onSubmit={onSubmit} className="ml-auto flex-1 max-w-sm">
+        <form onSubmit={onSubmit} className="ml-auto flex-1 max-w-sm min-w-0">
           <div ref={wrapRef} className="relative">
             <input
               ref={inputRef}
@@ -236,7 +248,52 @@ export function Navbar() {
             )}
           </div>
         </form>
+        <button
+          type="button"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((o) => !o)}
+          className="sm:hidden -mr-1 inline-flex size-9 items-center justify-center rounded-full text-text-dim hover:text-white hover:bg-surface-2 transition"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-5">
+            {mobileOpen ? (
+              <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
+            ) : (
+              <>
+                <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
+              </>
+            )}
+          </svg>
+        </button>
       </div>
+
+      {mobileOpen && (
+        <div className="sm:hidden border-t border-border bg-bg/95 backdrop-blur">
+          <nav className="mx-auto max-w-7xl flex flex-col px-2 py-2">
+            {[
+              ["/", "Home"],
+              ["/movies", "Movies"],
+              ["/tv", "TV Shows"],
+              ["/anime", "Anime"],
+              ["/exclusives", "Exclusives"],
+            ].map(([href, label]) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm transition ${
+                    active ? "bg-surface-2 text-white" : "text-text-dim hover:bg-surface-2 hover:text-white"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

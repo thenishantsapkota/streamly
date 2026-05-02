@@ -2,9 +2,16 @@ type Props = {
   className?: string;
   size?: number;
   showWordmark?: boolean;
+  /** When true, the wordmark hides on screens smaller than `sm` (≤640px). */
+  wordmarkResponsive?: boolean;
 };
 
-export function Logo({ className = "", size = 28, showWordmark = true }: Props) {
+export function Logo({
+  className = "",
+  size = 28,
+  showWordmark = true,
+  wordmarkResponsive = false,
+}: Props) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <svg

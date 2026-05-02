@@ -70,7 +70,8 @@ export function CastOnPause({
         </div>
         <DraggableScroll className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
           {cast.map((c) => (
-            <div
+            <button
+              type="button"
               key={`${c.personId}-${c.character}`}
               onMouseEnter={(e) => {
                 clearHoverTimer();
@@ -83,7 +84,14 @@ export function CastOnPause({
                 clearHoverTimer();
                 setActive((prev) => (prev?.entry === c ? null : prev));
               }}
-              className="group relative w-28 shrink-0 cursor-default"
+              onClick={(e) => {
+                clearHoverTimer();
+                const card = e.currentTarget;
+                setActive((prev) =>
+                  prev?.entry === c ? null : { entry: c, rect: card.getBoundingClientRect() },
+                );
+              }}
+              className="group relative w-24 sm:w-28 shrink-0 text-left"
             >
               <div className="aspect-3/4 overflow-hidden rounded-md bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
                 {c.personImage ? (
@@ -95,19 +103,27 @@ export function CastOnPause({
               </div>
               <div className="mt-1.5 line-clamp-1 text-xs font-medium">{c.personName}</div>
               <div className="line-clamp-1 text-[11px] text-text-dim">as {c.character}</div>
-            </div>
+            </button>
           ))}
         </DraggableScroll>
       </div>
 
       {active && (
-        <CastPopover
-          entry={active.entry}
-          source={source}
-          cache={cacheRef.current}
-          anchorRect={active.rect}
-          onClose={() => setActive(null)}
-        />
+        <>
+          {/* Tap-to-dismiss backdrop for touch devices */}
+          <div
+            className="fixed inset-0 z-30 sm:hidden"
+            onClick={() => setActive(null)}
+            aria-hidden
+          />
+          <CastPopover
+            entry={active.entry}
+            source={source}
+            cache={cacheRef.current}
+            anchorRect={active.rect}
+            onClose={() => setActive(null)}
+          />
+        </>
       )}
     </div>
   );

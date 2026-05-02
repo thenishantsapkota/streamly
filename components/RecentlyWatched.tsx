@@ -36,7 +36,7 @@ export function RecentlyWatched() {
           }
           const pct = Math.min(100, Math.max(0, Math.round(it.progress)));
           return (
-            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-70 shrink-0">
+            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-60 sm:w-70 shrink-0">
               <Link href={href} className="block">
                 <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
                   {it.backdrop ? (

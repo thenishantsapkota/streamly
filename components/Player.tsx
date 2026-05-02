@@ -292,10 +292,6 @@ export function Player(props: Props) {
           className="absolute inset-0 h-full w-full"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
-          // Sandbox blocks the ad-redirect / popup behaviour by withholding
-          // `allow-popups` and `allow-top-navigation*`. The flags listed are
-          // what the player legitimately needs for HLS playback and DRM.
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-orientation-lock"
           referrerPolicy="no-referrer"
           title={title}
         />

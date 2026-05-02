@@ -22,8 +22,8 @@ export function DetailsHeader({ title, tagline, overview, posterPath, backdropPa
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-bg/70 to-bg" />
         </div>
       )}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 pb-6 flex gap-6">
-        <div className="hidden sm:block w-44 shrink-0">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 sm:pt-8 pb-6 flex gap-4 sm:gap-6">
+        <div className="block w-24 sm:w-44 shrink-0">
           {poster ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -36,8 +36,8 @@ export function DetailsHeader({ title, tagline, overview, posterPath, backdropPa
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">{title}</h1>
-          {tagline && <p className="mt-1 italic text-text-dim">{tagline}</p>}
+          <h1 className="text-2xl sm:text-5xl font-bold tracking-tight">{title}</h1>
+          {tagline && <p className="mt-1 italic text-sm sm:text-base text-text-dim">{tagline}</p>}
           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-dim">
             {meta.map((m, i) => (
               <span key={i} className="flex items-center gap-2">

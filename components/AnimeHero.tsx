@@ -63,7 +63,7 @@ export function AnimeHero({ items }: { items: Anime[] }) {
 
   return (
     <section
-      className="relative h-[68vh] min-h-105 w-full overflow-hidden touch-pan-y"
+      className="relative h-[60vh] min-h-95 sm:h-[68vh] sm:min-h-105 w-full overflow-hidden touch-pan-y"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -104,8 +104,8 @@ export function AnimeHero({ items }: { items: Anime[] }) {
                   {a.seasonYear && <span>{a.seasonYear}</span>}
                   {a.averageScore != null && <span>★ {(a.averageScore / 10).toFixed(1)}</span>}
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-bold tracking-tight drop-shadow">{title}</h1>
-                <p className="mt-3 line-clamp-3 text-sm sm:text-base text-text-dim">{stripHtml(a.description)}</p>
+                <h1 className="text-3xl sm:text-6xl font-bold tracking-tight drop-shadow">{title}</h1>
+                <p className="mt-3 line-clamp-2 sm:line-clamp-3 text-sm sm:text-base text-text-dim">{stripHtml(a.description)}</p>
                 <div className="mt-6 flex gap-3">
                   <Link
                     href={isMovie ? `/anime/${a.id}/watch` : `/anime/${a.id}/watch?e=1`}

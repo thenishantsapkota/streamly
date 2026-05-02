@@ -20,7 +20,7 @@ export function MediaCard({ item, forceType }: Props) {
   return (
     <Link
       href={href}
-      className="group relative block w-[160px] sm:w-[180px] shrink-0"
+      className="group relative block w-34 sm:w-45 shrink-0"
     >
       <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
         {poster ? (
