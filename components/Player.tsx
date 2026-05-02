@@ -163,14 +163,14 @@ export function Player(props: Props) {
     isAnime && !animeHasTmdbFallback
       ? [{ id: "videasy", label: "Videasy" }]
       : [
-          { id: "vidking", label: "Vidking" },
           { id: "videasy", label: "Videasy" },
+          { id: "vidking", label: "Vidking" },
         ];
 
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
-  const [source, setSource] = useState<Source>(
-    isAnime && !animeHasTmdbFallback ? "videasy" : "vidking",
-  );
+  // Default to videasy for everything; users can switch to vidking via the
+  // source toggle (and that choice is remembered in localStorage).
+  const [source, setSource] = useState<Source>("videasy");
   const [showFallbackHint, setShowFallbackHint] = useState(false);
   const [autoFallbackToast, setAutoFallbackToast] = useState<string | null>(null);
   const lastSavedAt = useRef(0);
