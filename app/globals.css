@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0c;
+  --color-surface: #131318;
+  --color-surface-2: #1c1c24;
+  --color-border: #2a2a35;
+  --color-text: #f5f5f7;
+  --color-text-dim: #9ca3af;
+  --color-brand: #e50914;
+  --color-brand-hover: #f6121d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: white;
+}
+
+/* Restore the pre-Tailwind-v4 default: interactive elements show a pointer. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  select:not(:disabled),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+}
+
+/* Hide scrollbars on horizontal carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Subtle gradient overlay used on hero/poster */
+.fade-bottom {
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #1c1c24 0px, #2a2a35 200px, #1c1c24 400px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
