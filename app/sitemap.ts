@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/movies`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/tv`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/anime`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/exclusives`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
   ];
 
   // Trending picks for fresh dynamic entries — keeps the sitemap small but

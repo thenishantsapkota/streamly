@@ -141,6 +141,25 @@ export const tmdbApi = {
   person: (id: number | string) => tmdb<PersonDetails>(`/person/${id}`),
 
   /**
+   * Discover popular movies/TV available on a given streaming provider in a
+   * region. Used to power the platform "exclusives" rows.
+   */
+  discoverByProvider: (
+    type: "movie" | "tv",
+    providerId: number,
+    region: string,
+    page = 1,
+  ) =>
+    tmdb<{ results: MediaItem[] }>(`/discover/${type}`, {
+      with_watch_providers: providerId,
+      watch_region: region,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      include_adult: "false",
+      page,
+    }),
+
+  /**
    * Search TMDB for an anime title and return the best Japanese-language match.
    * Used to give vidking (which only supports TMDB IDs) a chance at playing anime.
    */

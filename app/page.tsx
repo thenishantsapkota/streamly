@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { Hero } from "@/components/Hero";
 import { Row } from "@/components/Row";
 import { AnimeRow } from "@/components/AnimeRow";
+import { ProviderRow } from "@/components/ProviderRow";
 import { RecentlyWatched } from "@/components/RecentlyWatched";
 import { tmdbApi } from "@/lib/tmdb";
 import { anilistApi } from "@/lib/anilist";
+import { HOME_PROVIDERS } from "@/lib/providers";
 
 export const revalidate = 3600;
 
@@ -33,6 +36,17 @@ export default async function HomePage() {
         <Row title="Now Playing" items={nowPlaying.results} forceType="movie" />
         <Row title="Popular Movies" items={popularMovies.results} forceType="movie" />
         <Row title="Popular TV Shows" items={popularTv.results} forceType="tv" />
+
+        <div className="mt-12 px-4 sm:px-6 flex items-baseline justify-between gap-3">
+          <h2 className="text-xl font-bold tracking-tight">Streaming Exclusives</h2>
+          <Link href="/exclusives" className="text-sm text-text-dim hover:text-white">
+            See all →
+          </Link>
+        </div>
+        {HOME_PROVIDERS.map((p) => (
+          <ProviderRow key={p.slug} provider={p} variant="condensed" />
+        ))}
+
         <AnimeRow title="Trending Anime" items={trendingAnime} />
         <AnimeRow title="Popular Anime" items={popularAnime} />
         <Row title="Top Rated Movies" items={topMovies.results} forceType="movie" />

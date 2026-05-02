@@ -146,6 +146,7 @@ export function Navbar() {
           {link("/movies", "Movies")}
           {link("/tv", "TV Shows")}
           {link("/anime", "Anime")}
+          {link("/exclusives", "Exclusives")}
         </nav>
         <form onSubmit={onSubmit} className="ml-auto flex-1 max-w-sm">
           <div ref={wrapRef} className="relative">
