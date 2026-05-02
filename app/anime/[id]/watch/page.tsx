@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Player } from "@/components/Player";
 import { AnimeEpisodeList } from "@/components/AnimeEpisodeList";
+import { AnimeEpisodeNav } from "@/components/AnimeEpisodeNav";
 import type { CastEntry } from "@/components/CastOnPause";
 import { anilistApi, anilistExtra, animeIsMovie, animeTitle, getEpisodeCount } from "@/lib/anilist";
 import { tmdbApi } from "@/lib/tmdb";
@@ -85,11 +86,19 @@ export default async function AnimeWatchPage({
           cast={cast}
           tmdbAlt={tmdbAlt}
         />
+        {!isMovie && episode != null && (
+          <AnimeEpisodeNav
+            animeId={numId}
+            currentEpisode={episode}
+            totalEpisodes={getEpisodeCount(a)}
+          />
+        )}
       </div>
       {!isMovie && (
         <div className="mx-auto max-w-7xl">
           <AnimeEpisodeList
             animeId={numId}
+            malId={a.idMal}
             totalEpisodes={getEpisodeCount(a)}
             activeEpisode={episode}
           />

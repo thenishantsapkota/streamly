@@ -129,7 +129,7 @@ export default async function AnimePage({ params }: { params: Promise<{ id: stri
 
       {!isMovie && (
         <div className="mx-auto max-w-7xl">
-          <AnimeEpisodeList animeId={a.id} totalEpisodes={epCount} />
+          <AnimeEpisodeList animeId={a.id} malId={a.idMal} totalEpisodes={epCount} />
         </div>
       )}
     </div>
