@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { posterUrl } from "@/lib/tmdb";
 import { Logo } from "./Logo";
 
 type Suggestion = {
   id: number;
-  media_type: "movie" | "tv";
+  kind: "movie" | "tv" | "anime";
   title: string;
-  poster_path: string | null;
-  vote_average: number;
+  poster: string | null;
+  rating: number;
   year: string;
+  label: string;
 };
 
 export function Navbar() {
@@ -93,7 +93,7 @@ export function Navbar() {
   }, [q]);
 
   function go(s: Suggestion) {
-    router.push(`/${s.media_type}/${s.id}`);
+    router.push(`/${s.kind}/${s.id}`);
     setOpen(false);
     inputRef.current?.blur();
   }
@@ -197,10 +197,10 @@ export function Navbar() {
                 {suggestions.length > 0 && (
                   <ul className="max-h-[60vh] overflow-y-auto py-1">
                     {suggestions.map((s, i) => {
-                      const poster = posterUrl(s.poster_path, "w185");
+                      const poster = s.poster;
                       const isActive = i === active;
                       return (
-                        <li key={`${s.media_type}-${s.id}`}>
+                        <li key={`${s.kind}-${s.id}`}>
                           <button
                             type="button"
                             onMouseEnter={() => setActive(i)}
@@ -219,9 +219,9 @@ export function Navbar() {
                             <div className="min-w-0 flex-1">
                               <div className="truncate text-sm font-medium">{s.title}</div>
                               <div className="text-xs text-text-dim">
-                                {s.media_type === "movie" ? "Movie" : "TV"}
+                                {s.label}
                                 {s.year ? ` · ${s.year}` : ""}
-                                {s.vote_average ? ` · ★ ${s.vote_average.toFixed(1)}` : ""}
+                                {s.rating ? ` · ★ ${s.rating.toFixed(1)}` : ""}
                               </div>
                             </div>
                           </button>
