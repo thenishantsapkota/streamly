@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWatched, upsertWatched, type WatchedItem } from "@/lib/storage";
 import { CastOnPause, type CastEntry } from "./CastOnPause";
+import { AdBlockerHint } from "./AdBlockerHint";
 
 export type PlayerMediaType = "movie" | "tv" | "anime";
 
@@ -284,6 +285,8 @@ export function Player(props: Props) {
           <AudioInfo isAnime={isAnime} />
         </div>
       </div>
+
+      <AdBlockerHint />
 
       <div className="relative w-full overflow-hidden rounded-lg bg-black ring-1 ring-border aspect-video">
         <iframe
