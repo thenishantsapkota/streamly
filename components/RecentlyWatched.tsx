@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getRecentlyWatched, removeWatched, type WatchedItem } from "@/lib/storage";
+import { DraggableScroll } from "./DraggableScroll";
 
 export function RecentlyWatched() {
   const [items, setItems] = useState<WatchedItem[]>([]);
@@ -25,7 +26,7 @@ export function RecentlyWatched() {
   return (
     <section className="mt-10">
       <h2 className="mb-3 px-4 sm:px-6 text-lg font-semibold tracking-tight">Continue Watching</h2>
-      <div className="no-scrollbar flex gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
+      <DraggableScroll className="no-scrollbar flex gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
         {items.map((it) => {
           let href = `/${it.type}/${it.id}`;
           if (it.type === "tv" && it.season && it.episode) {
@@ -35,7 +36,7 @@ export function RecentlyWatched() {
           }
           const pct = Math.min(100, Math.max(0, Math.round(it.progress)));
           return (
-            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-[280px] shrink-0">
+            <div key={`${it.type}-${it.id}-${it.season}-${it.episode}`} className="group relative w-70 shrink-0">
               <Link href={href} className="block">
                 <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
                   {it.backdrop ? (
@@ -90,7 +91,7 @@ export function RecentlyWatched() {
             </div>
           );
         })}
-      </div>
+      </DraggableScroll>
     </section>
   );
 }

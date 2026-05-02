@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DraggableScroll } from "./DraggableScroll";
 
 export type CastEntry = {
   /** Person/voice-actor id used to fetch real-life details */
@@ -67,7 +68,7 @@ export function CastOnPause({
           <h3 className="text-sm font-semibold tracking-tight">Cast</h3>
           <span className="text-xs text-text-dim">Hover for details</span>
         </div>
-        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+        <DraggableScroll className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
           {cast.map((c) => (
             <div
               key={`${c.personId}-${c.character}`}
@@ -84,7 +85,7 @@ export function CastOnPause({
               }}
               className="group relative w-28 shrink-0 cursor-default"
             >
-              <div className="aspect-[3/4] overflow-hidden rounded-md bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
+              <div className="aspect-3/4 overflow-hidden rounded-md bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
                 {c.personImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.personImage} alt={c.personName} className="h-full w-full object-cover" />
@@ -96,7 +97,7 @@ export function CastOnPause({
               <div className="line-clamp-1 text-[11px] text-text-dim">as {c.character}</div>
             </div>
           ))}
-        </div>
+        </DraggableScroll>
       </div>
 
       {active && (

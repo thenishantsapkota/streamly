@@ -1,4 +1,5 @@
 import { AnimeCard } from "./AnimeCard";
+import { DraggableScroll } from "./DraggableScroll";
 import type { Anime } from "@/lib/anilist";
 
 export function AnimeRow({ title, items }: { title: string; items: Anime[] }) {
@@ -6,11 +7,11 @@ export function AnimeRow({ title, items }: { title: string; items: Anime[] }) {
   return (
     <section className="mt-10">
       <h2 className="mb-3 px-4 sm:px-6 text-lg font-semibold tracking-tight">{title}</h2>
-      <div className="no-scrollbar flex gap-3 sm:gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
+      <DraggableScroll className="no-scrollbar flex gap-3 sm:gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
         {items.map((a) => (
           <AnimeCard key={a.id} anime={a} />
         ))}
-      </div>
+      </DraggableScroll>
     </section>
   );
 }

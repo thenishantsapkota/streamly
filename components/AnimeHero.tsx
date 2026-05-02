@@ -16,6 +16,21 @@ export function AnimeHero({ items }: { items: Anime[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    setPaused(true);
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    setPaused(false);
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 50) return;
+    if (dx < 0) goTo(index + 1);
+    else goTo(index - 1);
+  }
 
   const goTo = useCallback(
     (i: number) => {
@@ -48,9 +63,11 @@ export function AnimeHero({ items }: { items: Anime[] }) {
 
   return (
     <section
-      className="relative h-[68vh] min-h-105 w-full overflow-hidden"
+      className="relative h-[68vh] min-h-105 w-full overflow-hidden touch-pan-y"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       aria-roledescription="carousel"
     >
       {slides.map((a, i) => {
