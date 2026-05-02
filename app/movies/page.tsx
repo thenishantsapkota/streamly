@@ -26,9 +26,9 @@ export default async function MoviesPage() {
     <div className="-mt-16">
       {heroItems.length > 0 && <Hero items={heroItems} />}
       <div className="mx-auto max-w-7xl">
-        <Row title="Now Playing" items={nowPlaying.results} forceType="movie" />
-        <Row title="Popular" items={popular.results} forceType="movie" />
-        <Row title="Top Rated" items={topRated.results} forceType="movie" />
+        <Row title="Now Playing" items={nowPlaying.results} forceType="movie" viewAllHref="/movies/now-playing" />
+        <Row title="Popular" items={popular.results} forceType="movie" viewAllHref="/movies/popular" />
+        <Row title="Top Rated" items={topRated.results} forceType="movie" viewAllHref="/movies/top-rated" />
       </div>
     </div>
   );

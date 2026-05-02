@@ -6,9 +6,11 @@ type Props = {
   item: MediaItem;
   /** When the API doesn't include media_type (e.g. /movie/popular), pass it explicitly */
   forceType?: MediaType;
+  /** When true, the card fills its container width instead of using a fixed width. */
+  fluid?: boolean;
 };
 
-export function MediaCard({ item, forceType }: Props) {
+export function MediaCard({ item, forceType, fluid }: Props) {
   const type: MediaType = forceType ?? (item.media_type === "tv" ? "tv" : "movie");
   if (type !== "movie" && type !== "tv") return null;
 
@@ -20,7 +22,7 @@ export function MediaCard({ item, forceType }: Props) {
   return (
     <Link
       href={href}
-      className="group relative block w-34 sm:w-45 shrink-0"
+      className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"}`}
     >
       <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
         {poster ? (

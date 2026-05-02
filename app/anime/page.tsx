@@ -23,9 +23,9 @@ export default async function AnimeIndexPage() {
         <p className="mt-4 px-4 sm:px-6 text-sm text-text-dim">
           Subbed and dubbed versions are auto-detected by the player when available.
         </p>
-        <AnimeRow title="Trending Now" items={trending} />
-        <AnimeRow title="Most Popular" items={popular} />
-        <AnimeRow title="Top Rated" items={topRated} />
+        <AnimeRow title="Trending Now" items={trending} viewAllHref="/anime/trending" />
+        <AnimeRow title="Most Popular" items={popular} viewAllHref="/anime/popular" />
+        <AnimeRow title="Top Rated" items={topRated} viewAllHref="/anime/top-rated" />
       </div>
     </div>
   );

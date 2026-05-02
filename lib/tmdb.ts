@@ -119,13 +119,13 @@ export const tmdbApi = {
   trending: (window: "day" | "week" = "week") =>
     tmdb<{ results: MediaItem[] }>(`/trending/all/${window}`),
 
-  popularMovies: () => tmdb<{ results: MediaItem[] }>("/movie/popular"),
-  topRatedMovies: () => tmdb<{ results: MediaItem[] }>("/movie/top_rated"),
-  nowPlayingMovies: () => tmdb<{ results: MediaItem[] }>("/movie/now_playing"),
+  popularMovies: (page = 1) => tmdb<{ results: MediaItem[] }>("/movie/popular", { page }),
+  topRatedMovies: (page = 1) => tmdb<{ results: MediaItem[] }>("/movie/top_rated", { page }),
+  nowPlayingMovies: (page = 1) => tmdb<{ results: MediaItem[] }>("/movie/now_playing", { page }),
 
-  popularTv: () => tmdb<{ results: MediaItem[] }>("/tv/popular"),
-  topRatedTv: () => tmdb<{ results: MediaItem[] }>("/tv/top_rated"),
-  airingTodayTv: () => tmdb<{ results: MediaItem[] }>("/tv/airing_today"),
+  popularTv: (page = 1) => tmdb<{ results: MediaItem[] }>("/tv/popular", { page }),
+  topRatedTv: (page = 1) => tmdb<{ results: MediaItem[] }>("/tv/top_rated", { page }),
+  airingTodayTv: (page = 1) => tmdb<{ results: MediaItem[] }>("/tv/airing_today", { page }),
 
   search: (query: string, page = 1) =>
     tmdb<{ results: MediaItem[]; total_pages: number; page: number }>("/search/multi", {

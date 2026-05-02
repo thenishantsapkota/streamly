@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { animeTitle, type Anime } from "@/lib/anilist";
 
-export function AnimeCard({ anime }: { anime: Anime }) {
+export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
   const title = animeTitle(anime);
   const poster = anime.coverImage.extraLarge || anime.coverImage.large;
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className="group relative block w-34 sm:w-45 shrink-0"
+      className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"}`}
     >
       <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
         {poster ? (
