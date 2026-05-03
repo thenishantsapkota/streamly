@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Row } from "@/components/Row";
 import { SeasonPicker } from "@/components/SeasonPicker";
 import { WatchlistButton } from "@/components/WatchlistButton";
+import { ShareButton } from "@/components/ShareButton";
 import { isAnimeTv, tmdbApi, IMG, posterUrl, backdropUrl, getYear } from "@/lib/tmdb";
 import { anilistApi } from "@/lib/anilist";
 
@@ -74,29 +75,29 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
   return (
     <div className="pb-12">
       {/* Hero with trailer background */}
-      <section className="relative -mt-16 overflow-hidden">
+      <section className="relative -mt-16 isolate overflow-hidden">
         {trailer ? (
-          <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 -z-10 overflow-hidden">
             <iframe
               src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer.key}&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`}
               title=""
               allow="autoplay"
-              className="absolute inset-0 h-full w-full scale-125 pointer-events-none"
+              className="absolute inset-0 h-full w-full scale-150 pointer-events-none"
               tabIndex={-1}
               aria-hidden
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-bg/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-bg/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg from-5% via-bg/80 via-40% to-bg/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/40 to-transparent" />
           </div>
         ) : tv.backdrop_path ? (
-          <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 -z-10 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={backdropUrl(tv.backdrop_path, "original")!}
               alt=""
               className="h-full w-full object-cover opacity-40"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg from-5% via-bg/70 to-bg/30" />
             <div className="absolute inset-0 bg-gradient-to-r from-bg/80 to-transparent" />
           </div>
         ) : null}
@@ -172,6 +173,7 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
                   addedAt: Date.now(),
                 }}
               />
+              <ShareButton title={tv.name ?? "Untitled"} text={tv.overview} />
             </div>
           </div>
         </div>

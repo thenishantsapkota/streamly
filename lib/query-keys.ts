@@ -14,6 +14,10 @@ export const qk = {
   trendingMovies: (window: "day" | "week") => ["trending-movies", window] as const,
   trendingTv: (window: "day" | "week") => ["trending-tv", window] as const,
 
+  // Country-based
+  bollywoodMovies: () => ["bollywood-movies"] as const,
+  bollywoodTv: () => ["bollywood-tv"] as const,
+
   // AniList
   trendingAnime: (perPage = 20) => ["trending-anime", perPage] as const,
   popularAnime: (perPage = 20) => ["popular-anime", perPage] as const,

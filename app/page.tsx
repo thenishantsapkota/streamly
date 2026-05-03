@@ -8,7 +8,7 @@ import { HOME_PROVIDERS } from "@/lib/providers";
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [trending, trendingToday, popularMovies, popularTv, topMovies, topTv, nowPlaying, trendingAnime, popularAnime] =
+  const [trending, trendingToday, popularMovies, popularTv, topMovies, topTv, nowPlaying, trendingAnime, popularAnime, bollywoodMovies, bollywoodTv] =
     await Promise.all([
       tmdbApi.trending("week"),
       tmdbApi.trending("day"),
@@ -19,6 +19,8 @@ export default async function HomePage() {
       tmdbApi.nowPlayingMovies(),
       anilistApi.trending(20).catch(() => []),
       anilistApi.popular(20).catch(() => []),
+      tmdbApi.discoverByCountry("movie", "IN"),
+      tmdbApi.discoverByCountry("tv", "IN"),
     ]);
 
   const providerRows = (
@@ -47,6 +49,8 @@ export default async function HomePage() {
         nowPlaying,
         trendingAnime,
         popularAnime,
+        bollywoodMovies,
+        bollywoodTv,
       }}
       providerRows={providerRows}
     />

@@ -51,6 +51,15 @@ export const tmdbClient = {
 
   trendingTv: (window: "day" | "week" = "week") =>
     fetchTmdb<PageResult>(`/trending/tv/${window}`),
+
+  discoverByCountry: (type: "movie" | "tv", country: string, page = 1) =>
+    fetchTmdb<PageResult>(`/discover/${type}`, {
+      with_origin_country: country,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 10,
+      include_adult: "false",
+      page,
+    }),
 };
 
 // ---- AniList client functions ----

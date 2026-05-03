@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { isInWatchlist, toggleWatchlist, type WatchlistItem } from "@/lib/watchlist";
+import { toast } from "./Toast";
 
 type Props = {
   item: WatchlistItem;
@@ -33,6 +34,7 @@ export function WatchlistButton({ item, className = "" }: Props) {
       onClick={() => {
         const nowSaved = toggleWatchlist(item);
         setSaved(nowSaved);
+        toast(nowSaved ? `Added "${item.title}" to My List` : `Removed from My List`);
       }}
       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
         saved

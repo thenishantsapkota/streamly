@@ -20,6 +20,8 @@ export function SplashScreen() {
     queryClient.prefetchQuery({ queryKey: qk.nowPlayingMovies(), queryFn: () => tmdbClient.nowPlayingMovies() });
     queryClient.prefetchQuery({ queryKey: qk.trendingAnime(), queryFn: () => anilistClient.trending(20) });
     queryClient.prefetchQuery({ queryKey: qk.popularAnime(), queryFn: () => anilistClient.popular(20) });
+    queryClient.prefetchQuery({ queryKey: qk.bollywoodMovies(), queryFn: () => tmdbClient.discoverByCountry("movie", "IN") });
+    queryClient.prefetchQuery({ queryKey: qk.bollywoodTv(), queryFn: () => tmdbClient.discoverByCountry("tv", "IN") });
   }, [queryClient]);
 
   useEffect(() => {

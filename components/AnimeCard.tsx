@@ -7,9 +7,9 @@ export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"}`}
+      className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"} transition-transform duration-200 hover:-translate-y-1`}
     >
-      <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
+      <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition-shadow duration-200 group-hover:ring-brand/70 group-hover:shadow-lg group-hover:shadow-black/40">
         {poster ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -27,6 +27,14 @@ export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
             ★ {(anime.averageScore / 10).toFixed(1)}
           </div>
         )}
+        {/* Play overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <div className="rounded-full bg-white/90 p-2.5 shadow-lg text-black">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
       </div>
       <div className="mt-2 px-0.5">
         <div className="line-clamp-1 text-sm font-medium">{title}</div>

@@ -8,6 +8,7 @@ import { SplashScreen } from "./SplashScreen";
 import { BackToTop } from "./BackToTop";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { QueryProvider } from "./QueryProvider";
+import { ToastContainer } from "./Toast";
 
 const CHROMELESS_ROUTES = new Set(["/login"]);
 
@@ -28,8 +29,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Suspense fallback={<div className="fixed inset-x-0 top-0 z-50 h-16" />}>
         <Navbar />
       </Suspense>
-      <main id="main-content" className="pt-16">{children}</main>
+      <main id="main-content" className="pt-16 page-fade-in">{children}</main>
       <BackToTop />
+      <ToastContainer />
       <footer className="border-t border-border mt-24 py-10 text-sm text-text-dim">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
@@ -64,6 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <h3 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">My Streamly</h3>
               <ul className="space-y-2">
                 <li><a href="/my-list" className="hover:text-white transition">My List</a></li>
+                <li><a href="/history" className="hover:text-white transition">History</a></li>
                 <li><a href="/search" className="hover:text-white transition">Search</a></li>
               </ul>
             </div>

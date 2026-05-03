@@ -6,6 +6,7 @@ import { Row } from "@/components/Row";
 import { Top10Row } from "@/components/Top10Row";
 import { AnimeRow } from "@/components/AnimeRow";
 import { RecentlyWatched } from "@/components/RecentlyWatched";
+import { RandomPick } from "@/components/RandomPick";
 import { tmdbClient, anilistClient } from "@/lib/api-client";
 import { qk } from "@/lib/query-keys";
 import type { MediaItem } from "@/lib/tmdb";
@@ -21,6 +22,8 @@ type HomeData = {
   nowPlaying: { results: MediaItem[] };
   trendingAnime: Anime[];
   popularAnime: Anime[];
+  bollywoodMovies: { results: MediaItem[] };
+  bollywoodTv: { results: MediaItem[] };
 };
 
 export function HomeContent({
@@ -75,6 +78,16 @@ export function HomeContent({
     queryFn: () => anilistClient.popular(20),
     initialData: initial.popularAnime,
   });
+  const bollywoodMovies = useQuery({
+    queryKey: qk.bollywoodMovies(),
+    queryFn: () => tmdbClient.discoverByCountry("movie", "IN"),
+    initialData: initial.bollywoodMovies,
+  });
+  const bollywoodTv = useQuery({
+    queryKey: qk.bollywoodTv(),
+    queryFn: () => tmdbClient.discoverByCountry("tv", "IN"),
+    initialData: initial.bollywoodTv,
+  });
 
   const heroItems = (trending.data?.results ?? [])
     .filter((i) => i.backdrop_path && i.overview)
@@ -85,11 +98,17 @@ export function HomeContent({
       {heroItems.length > 0 && <Hero items={heroItems} />}
       <div className="mx-auto max-w-7xl">
         <RecentlyWatched />
+        <div className="mt-6 px-4 sm:px-6">
+          <RandomPick />
+        </div>
         <Top10Row title="Top 10 Today" items={trendingToday.data?.results ?? []} />
         <Row title="Trending This Week" items={trending.data?.results ?? []} viewAllHref="/trending" />
         <Row title="Now Playing" items={nowPlaying.data?.results ?? []} forceType="movie" viewAllHref="/movies/now-playing" />
         <Row title="Popular Movies" items={popularMovies.data?.results ?? []} forceType="movie" viewAllHref="/movies/popular" />
         <Row title="Popular TV Shows" items={popularTv.data?.results ?? []} forceType="tv" viewAllHref="/tv/popular" />
+
+        <Row title="Bollywood Movies" items={bollywoodMovies.data?.results ?? []} forceType="movie" viewAllHref="/country/IN" />
+        <Row title="Indian TV Shows" items={bollywoodTv.data?.results ?? []} forceType="tv" viewAllHref="/country/IN" />
 
         {providerRows}
 
