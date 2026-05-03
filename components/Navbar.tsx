@@ -244,19 +244,35 @@ export function Navbar() {
 
           {link("/exclusives", "Exclusives")}
         </nav>
-        <Link
-          href="/my-list"
-          aria-label="My List"
-          className={`hidden sm:inline-flex ml-auto items-center justify-center size-9 rounded-full transition ${
-            pathname === "/my-list"
-              ? "text-white bg-surface-2"
-              : "text-text-dim hover:text-white hover:bg-surface-2"
-          }`}
-        >
-          <svg viewBox="0 0 24 24" fill={pathname === "/my-list" ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} className="size-5">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
+        <div className="hidden sm:flex ml-auto items-center gap-1">
+          <Link
+            href="/my-list"
+            aria-label="My List"
+            className={`inline-flex items-center justify-center size-9 rounded-full transition ${
+              pathname === "/my-list"
+                ? "text-white bg-surface-2"
+                : "text-text-dim hover:text-white hover:bg-surface-2"
+            }`}
+          >
+            <svg viewBox="0 0 24 24" fill={pathname === "/my-list" ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} className="size-5">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+          <Link
+            href="/history"
+            aria-label="History"
+            className={`inline-flex items-center justify-center size-9 rounded-full transition ${
+              pathname === "/history"
+                ? "text-white bg-surface-2"
+                : "text-text-dim hover:text-white hover:bg-surface-2"
+            }`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
         <form onSubmit={onSubmit} className="sm:ml-0 ml-auto flex-1 max-w-sm min-w-0">
           <div ref={wrapRef} className="relative">
             <input
@@ -430,6 +446,7 @@ export function Navbar() {
 
             {[
               ["/my-list", "My List"],
+              ["/history", "History"],
               ["/country", "Country"],
               ["/trending", "Trending"],
               ["/exclusives", "Exclusives"],
