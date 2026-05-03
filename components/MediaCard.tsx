@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTitle, getYear, posterUrl, type MediaItem, type MediaType } from "@/lib/tmdb";
-import { CardPreview } from "./CardPreview";
 
 type Props = {
   item: MediaItem;
@@ -21,7 +20,6 @@ export function MediaCard({ item, forceType, fluid }: Props) {
   const year = getYear(item);
 
   return (
-    <CardPreview id={item.id} type={type}>
     <Link
       href={href}
       className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"} transition-transform duration-200 hover:-translate-y-1`}
@@ -62,6 +60,5 @@ export function MediaCard({ item, forceType, fluid }: Props) {
         </div>
       </div>
     </Link>
-    </CardPreview>
   );
 }

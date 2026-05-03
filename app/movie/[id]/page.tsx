@@ -1,9 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
-import { DetailsHeader } from "@/components/DetailsHeader";
 import { Row } from "@/components/Row";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import type { CastEntry } from "@/components/CastOnPause";
+import { TrailerMuteButton } from "@/components/TrailerMuteButton";
 import { backdropUrl, posterUrl, profileUrl, tmdbApi, IMG, getYear } from "@/lib/tmdb";
 
 export const revalidate = 3600;
@@ -80,94 +81,73 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="pb-12">
-      {/* Hero with trailer background */}
-      <section className="relative -mt-16 isolate overflow-hidden">
+      {/* Netflix-style billboard */}
+      <section className="relative -mt-16 isolate overflow-hidden" style={{ height: "clamp(400px, 70vw * 9/16 + 4rem, 85vh)" }}>
+        {/* Video / backdrop layer — full bleed */}
         {trailer ? (
-          <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute inset-[-20%] pointer-events-none">
             <iframe
-              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer.key}&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`}
+              src={`https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer.key}&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1`}
               title=""
               allow="autoplay"
-              className="absolute inset-0 h-full w-full scale-150 pointer-events-none"
+              className="h-full w-full border-0"
               tabIndex={-1}
               aria-hidden
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg from-5% via-bg/80 via-40% to-bg/40" />
-            <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/40 to-transparent" />
           </div>
         ) : movie.backdrop_path ? (
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="absolute inset-0">
+            <Image
               src={backdropUrl(movie.backdrop_path, "original")!}
               alt=""
-              className="h-full w-full object-cover opacity-40"
+              fill
+              className="object-cover"
+              priority
+              unoptimized
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg from-5% via-bg/70 to-bg/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-bg/80 to-transparent" />
           </div>
         ) : null}
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-28 sm:pt-36 pb-10 sm:pb-16 flex gap-5 sm:gap-8">
-          <div className="hidden sm:block w-44 shrink-0">
-            {movie.poster_path && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={posterUrl(movie.poster_path, "w500")!}
-                alt={movie.title ?? ""}
-                className="aspect-2/3 w-full rounded-lg object-cover ring-1 ring-border shadow-2xl"
-              />
-            )}
-          </div>
-          <div className="min-w-0 flex-1 flex flex-col justify-end">
-            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight drop-shadow-lg">
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 via-35% to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-bg/80 via-bg/20 via-50% to-transparent" />
+
+        {/* Content overlay at bottom-left */}
+        <div className="absolute inset-x-0 bottom-0 z-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-10 sm:pb-14">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-lg max-w-2xl">
               {movie.title ?? "Untitled"}
             </h1>
             {movie.tagline && (
-              <p className="mt-1 italic text-sm sm:text-base text-text-dim">{movie.tagline}</p>
+              <p className="mt-2 italic text-sm sm:text-base text-white/70 drop-shadow">{movie.tagline}</p>
             )}
-            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-dim">
+            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-white/60">
               {[
                 year,
                 fmtRuntime(movie.runtime),
                 movie.vote_average ? `★ ${movie.vote_average.toFixed(1)}` : "",
-                movie.status,
               ]
                 .filter(Boolean)
                 .map((m, i) => (
-                  <span key={i} className="flex items-center gap-2">
-                    {i > 0 && <span className="text-border">·</span>}
-                    <span>{m}</span>
+                  <span key={i}>
+                    {i > 0 && <span className="mx-1">·</span>}
+                    {m}
                   </span>
                 ))}
             </div>
-            {movie.genres.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {movie.genres.map((g) => (
-                  <Link
-                    key={g.id}
-                    href={`/genre/${g.name.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`}
-                    className="rounded-full border border-border bg-surface-2/60 backdrop-blur px-2.5 py-0.5 text-xs hover:bg-surface-2 transition"
-                  >
-                    {g.name}
-                  </Link>
-                ))}
-              </div>
-            )}
-            <p className="mt-4 max-w-2xl text-sm sm:text-base text-white/90 line-clamp-3 sm:line-clamp-none">
+            <p className="mt-3 max-w-lg text-sm text-white/80 line-clamp-3 drop-shadow">
               {movie.overview}
             </p>
 
-            {/* Action buttons */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 href={`/movie/${numId}/watch`}
-                className="inline-flex items-center gap-2 rounded-full bg-brand hover:bg-brand-hover px-6 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                className="inline-flex items-center gap-2 rounded-md bg-white hover:bg-white/90 px-6 py-2.5 text-sm font-bold text-black transition shadow-lg"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                Watch
+                Play
               </Link>
               <WatchlistButton
                 item={{
@@ -184,42 +164,75 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
-      </section>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* Crew & providers */}
-        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-          {director && (
-            <div>
-              <span className="text-text-dim">Director </span>
-              <span className="font-medium">{director.name}</span>
-            </div>
-          )}
-          {writers.length > 0 && (
-            <div>
-              <span className="text-text-dim">Writers </span>
-              <span className="font-medium">{writers.map((w) => w.name).join(", ")}</span>
-            </div>
-          )}
-        </div>
-
-        {streamOn.length > 0 && (
-          <div className="mt-4">
-            <span className="text-sm text-text-dim">Stream on </span>
-            <div className="mt-1.5 inline-flex gap-2">
-              {streamOn.map((p) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={p.provider_id}
-                  src={`${IMG}/w45${p.logo_path}`}
-                  alt={p.provider_name}
-                  title={p.provider_name}
-                  className="size-9 rounded-lg ring-1 ring-border"
-                />
-              ))}
-            </div>
+        {/* Mute button — bottom right */}
+        {trailer && (
+          <div className="absolute bottom-10 sm:bottom-14 right-4 sm:right-6 z-20">
+            <TrailerMuteButton trailerKey={trailer.key} />
           </div>
         )}
+      </section>
+
+      {/* Detail section below billboard */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-8">
+        <div>
+          <div>
+            {/* Genres */}
+            {movie.genres.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {movie.genres.map((g) => (
+                  <Link
+                    key={g.id}
+                    href={`/genre/${g.name.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`}
+                    className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs hover:bg-surface hover:text-white transition"
+                  >
+                    {g.name}
+                  </Link>
+                ))}
+                <span className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs text-text-dim">
+                  {movie.status}
+                </span>
+              </div>
+            )}
+
+            {/* Crew */}
+            <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+              {director && (
+                <div>
+                  <span className="text-text-dim">Director </span>
+                  <span className="font-medium">{director.name}</span>
+                </div>
+              )}
+              {writers.length > 0 && (
+                <div>
+                  <span className="text-text-dim">Writers </span>
+                  <span className="font-medium">{writers.map((w) => w.name).join(", ")}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Providers */}
+            {streamOn.length > 0 && (
+              <div className="mt-4">
+                <span className="text-sm text-text-dim">Stream on </span>
+                <div className="mt-1.5 inline-flex gap-2">
+                  {streamOn.map((p) => (
+                    <Image
+                      key={p.provider_id}
+                      src={`${IMG}/w45${p.logo_path}`}
+                      alt={p.provider_name}
+                      title={p.provider_name}
+                      width={36}
+                      height={36}
+                      className="size-9 rounded-lg ring-1 ring-border"
+                      unoptimized
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       <div className="mx-auto max-w-7xl">
         <Row title="More Like This" items={recs.results} forceType="movie" />
