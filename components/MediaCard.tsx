@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTitle, getYear, posterUrl, type MediaItem, type MediaType } from "@/lib/tmdb";
+import { BLUR_DATA_URL } from "@/lib/image";
 
 type Props = {
   item: MediaItem;
@@ -31,8 +32,10 @@ export function MediaCard({ item, forceType, fluid }: Props) {
             alt={title}
             width={342}
             height={513}
+            sizes="(max-width: 640px) 136px, 180px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            unoptimized
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-text-dim">

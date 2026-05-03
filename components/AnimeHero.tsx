@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animeIsMovie, animeTitle, type Anime } from "@/lib/anilist";
+import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 
 const AUTOPLAY_MS = 6000;
 
@@ -84,11 +86,15 @@ export function AnimeHero({ items }: { items: Anime[] }) {
             aria-hidden={!active}
           >
             {bg && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={bg}
                 alt=""
-                className={`absolute inset-0 h-full w-full object-cover transition-transform duration-8000 ease-out ${
+                fill
+                sizes="100vw"
+                priority={i === 0}
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URL_LANDSCAPE}
+                className={`object-cover transition-transform duration-8000 ease-out ${
                   active ? "scale-105" : "scale-100"
                 }`}
               />

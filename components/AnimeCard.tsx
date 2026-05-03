@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { animeTitle, type Anime } from "@/lib/anilist";
+import { BLUR_DATA_URL } from "@/lib/image";
 
 export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
   const title = animeTitle(anime);
@@ -11,10 +13,14 @@ export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
     >
       <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition-shadow duration-200 group-hover:ring-brand/70 group-hover:shadow-lg group-hover:shadow-black/40">
         {poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={poster}
             alt={title}
+            width={460}
+            height={690}
+            sizes="(max-width: 640px) 136px, 180px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

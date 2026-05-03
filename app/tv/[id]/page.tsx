@@ -6,6 +6,7 @@ import { WatchlistButton } from "@/components/WatchlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { TrailerMuteButton } from "@/components/TrailerMuteButton";
 import { isAnimeTv, tmdbApi, IMG, posterUrl, backdropUrl, getYear } from "@/lib/tmdb";
+import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 import { anilistApi } from "@/lib/anilist";
 
 export const revalidate = 3600;
@@ -98,7 +99,9 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
               fill
               className="object-cover"
               priority
-              unoptimized
+              sizes="100vw"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL_LANDSCAPE}
             />
           </div>
         ) : null}
@@ -212,7 +215,7 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
                       width={36}
                       height={36}
                       className="size-9 rounded-lg ring-1 ring-border"
-                      unoptimized
+                      sizes="100vw"
                     />
                   ))}
                 </div>

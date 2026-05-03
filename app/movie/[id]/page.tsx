@@ -6,6 +6,7 @@ import { ShareButton } from "@/components/ShareButton";
 import type { CastEntry } from "@/components/CastOnPause";
 import { TrailerMuteButton } from "@/components/TrailerMuteButton";
 import { backdropUrl, posterUrl, profileUrl, tmdbApi, IMG, getYear } from "@/lib/tmdb";
+import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 
 export const revalidate = 3600;
 
@@ -103,7 +104,9 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
               fill
               className="object-cover"
               priority
-              unoptimized
+              sizes="100vw"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL_LANDSCAPE}
             />
           </div>
         ) : null}
@@ -225,7 +228,7 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                       width={36}
                       height={36}
                       className="size-9 rounded-lg ring-1 ring-border"
-                      unoptimized
+                      sizes="100vw"
                     />
                   ))}
                 </div>

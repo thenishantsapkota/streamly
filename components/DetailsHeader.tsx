@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { backdropUrl, posterUrl, type Genre } from "@/lib/tmdb";
+import { BLUR_DATA_URL, BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 
 type Props = {
   title: string;
@@ -17,18 +19,21 @@ export function DetailsHeader({ title, tagline, overview, posterPath, backdropPa
     <section className="relative">
       {bg && (
         <div className="absolute inset-x-0 top-0 h-105 -z-10 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bg} alt="" className="h-full w-full object-cover opacity-40" />
+          <Image src={bg} alt="" fill sizes="100vw" placeholder="blur" blurDataURL={BLUR_DATA_URL_LANDSCAPE} className="object-cover opacity-40" />
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-bg/70 to-bg" />
         </div>
       )}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 sm:pt-8 pb-6 flex gap-4 sm:gap-6">
-        <div className="block w-24 sm:w-44 shrink-0">
+        <div className="relative block w-24 sm:w-44 shrink-0">
           {poster ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={poster}
               alt={title}
+              width={500}
+              height={750}
+              sizes="(max-width: 640px) 96px, 176px"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
               className="aspect-2/3 w-full rounded-lg object-cover ring-1 ring-border"
             />
           ) : (
