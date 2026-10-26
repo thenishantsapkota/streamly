@@ -1,6 +1,31 @@
+import { useEffect } from "react";
 import { Link } from "@/lib/router-compat";
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Reveal, SplitTitle } from "@/components/motion";
+
+const STALE_CHUNK = /dynamically imported module|Importing a module script failed|error loading dynamically/i;
+const RELOAD_KEY = "stale-chunk-reload-at";
+
+/**
+ * A deploy replaces the hashed JS chunks, so a tab opened before it fails to
+ * load the next route. Reload once (guarded against loops) to pick up the
+ * new build instead of showing an error.
+ */
+function useReloadOnStaleChunk(error: Error) {
+  const stale = STALE_CHUNK.test(error.message);
+  useEffect(() => {
+    if (!stale) return;
+    try {
+      const last = Number(window.sessionStorage.getItem(RELOAD_KEY) ?? 0);
+      if (Date.now() - last < 30_000) return;
+      window.sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+    } catch {
+      /* storage unavailable: still try once */
+    }
+    window.location.reload();
+  }, [stale]);
+  return stale;
+}
 
 export function ErrorPage({
   error,
@@ -9,6 +34,7 @@ export function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const stale = useReloadOnStaleChunk(error);
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6">
       <Reveal y={12}>
@@ -24,7 +50,9 @@ export function ErrorPage({
       />
       <Reveal delay={0.3} y={12}>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-text-dim sm:text-base">
-          {error.message || "This page failed to load. Try again, or come back in a minute."}
+          {stale
+            ? "Streamly was just updated. Reloading to get the latest version."
+            : error.message || "This page failed to load. Try again, or come back in a minute."}
         </p>
         {error.digest && <p className="mt-2 tabular-nums text-xs text-text-dim/60">Ref {error.digest}</p>}
         <div className="mt-8 flex flex-wrap gap-3">
