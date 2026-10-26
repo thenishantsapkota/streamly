@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion, useReducedMotion } from "motion/react";
+import { EASE_CINEMA } from "./motion";
+import { MARK_ACCENT, MARK_BARS, MARK_LIGHT, MARK_PLAY, MARK_VIEWBOX } from "@/lib/brand-mark";
 import { tmdbClient, anilistClient } from "@/lib/api-client";
 import { qk } from "@/lib/query-keys";
 
+const SEEN_KEY = "splash-seen-v2";
+let shouldPlay: boolean | null = null;
+
 export function SplashScreen() {
-  const [phase, setPhase] = useState<"in" | "zoom" | "done">("in");
+  const [phase, setPhase] = useState<"in" | "out" | "done">("in");
+  const reduce = useReducedMotion();
   const queryClient = useQueryClient();
 
   // Prefetch home page data while the splash animation plays
@@ -25,55 +32,107 @@ export function SplashScreen() {
   }, [queryClient]);
 
   useEffect(() => {
-    const zoomTimer = setTimeout(() => setPhase("zoom"), 1200);
-    const doneTimer = setTimeout(() => setPhase("done"), 2000);
+    // Decide once per page load; dev-mode effect double-runs must not see
+    // the flag this same load just wrote.
+    if (shouldPlay === null) {
+      try {
+        shouldPlay = window.sessionStorage.getItem(SEEN_KEY) !== "1";
+        window.sessionStorage.setItem(SEEN_KEY, "1");
+      } catch {
+        shouldPlay = true;
+      }
+    }
+    if (!shouldPlay || reduce) {
+      setPhase("done");
+      return;
+    }
+    const outTimer = setTimeout(() => setPhase("out"), 1600);
+    const doneTimer = setTimeout(() => setPhase("done"), 2500);
     return () => {
-      clearTimeout(zoomTimer);
+      clearTimeout(outTimer);
       clearTimeout(doneTimer);
     };
-  }, []);
+  }, [reduce]);
 
   if (phase === "done") return null;
 
+  const letters = "STREAMLY".split("");
+
+  // Letterbox: two bars that part vertically, revealing the page.
   return (
-    <div
-      className={`fixed inset-0 z-9999 flex items-center justify-center bg-bg ${
-        phase === "zoom" ? "splash-zoom-out" : ""
-      }`}
-    >
-      <div className={`flex flex-col items-center gap-4 ${phase === "in" ? "splash-fade-in" : ""}`}>
-        <svg width={64} height={64} viewBox="0 0 64 64" aria-hidden>
-          <defs>
-            <linearGradient id="splash-bg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#1a1a22" />
-              <stop offset="100%" stopColor="#0a0a0c" />
-            </linearGradient>
-          </defs>
-          <rect width="64" height="64" rx="14" fill="url(#splash-bg)" />
-          <path
-            d="M16 18 L30 32 L16 46"
-            stroke="#e50914"
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            className="splash-stroke-draw"
+    <div className="pointer-events-none fixed inset-0 z-9999" aria-hidden>
+      <motion.div
+        className="absolute inset-x-0 top-0 h-1/2 bg-bg"
+        animate={phase === "out" ? { y: "-100%" } : { y: 0 }}
+        transition={{ duration: 0.9, ease: EASE_CINEMA }}
+      />
+      <motion.div
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-bg"
+        animate={phase === "out" ? { y: "100%" } : { y: 0 }}
+        transition={{ duration: 0.9, ease: EASE_CINEMA }}
+      />
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center"
+        animate={phase === "out" ? { opacity: 0, scale: 1.08 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: EASE_CINEMA }}
+      >
+        <svg viewBox={MARK_VIEWBOX} width={88} height={88} className="mb-6 overflow-visible" aria-hidden>
+          <clipPath id="splash-top">
+            <rect x="0" y="0" width="64" height="31" />
+          </clipPath>
+          <clipPath id="splash-bottom">
+            <rect x="0" y="33" width="64" height="31" />
+          </clipPath>
+          <motion.path
+            d={MARK_BARS}
+            fill={MARK_LIGHT}
+            fillRule="evenodd"
+            clipPath="url(#splash-top)"
+            initial={{ x: 28, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: EASE_CINEMA }}
           />
-          <path
-            d="M32 18 L46 32 L32 46"
-            stroke="#ffffff"
-            strokeWidth="7"
-            strokeLinecap="round"
+          <motion.path
+            d={MARK_BARS}
+            fill={MARK_LIGHT}
+            fillRule="evenodd"
+            clipPath="url(#splash-bottom)"
+            initial={{ x: -28, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: EASE_CINEMA }}
+          />
+          <motion.path
+            d={MARK_PLAY}
+            fill={MARK_ACCENT}
+            stroke={MARK_ACCENT}
+            strokeWidth={1.6}
             strokeLinejoin="round"
-            fill="none"
-            className="splash-stroke-draw splash-stroke-delay"
+            style={{ transformOrigin: "30px 32px" }}
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.35 }}
           />
         </svg>
-
-        <span className="text-4xl font-bold tracking-tight select-none">
-          <span className="text-brand">Stream</span>ly
-        </span>
-      </div>
+        <div className="flex overflow-hidden font-display text-4xl font-bold tracking-[0.2em] sm:text-6xl">
+          {letters.map((l, i) => (
+            <motion.span
+              key={i}
+              initial={{ y: "110%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 0.7, delay: 0.4 + i * 0.04, ease: EASE_CINEMA }}
+              className={i < 6 ? "text-white" : "text-brand"}
+            >
+              {l}
+            </motion.span>
+          ))}
+        </div>
+        <motion.span
+          className="mt-4 h-px w-40 origin-left bg-brand"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.7, ease: EASE_CINEMA }}
+        />
+      </motion.div>
     </div>
   );
 }

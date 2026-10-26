@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/PageHeader";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { MediaGrid } from "@/components/MediaGrid";
 import { tmdbApi } from "@/lib/tmdb";
 
@@ -17,14 +19,15 @@ export default async function TopRatedMoviesPage() {
   const items = [...p1.results, ...p2.results, ...p3.results];
 
   return (
-    <div className="pt-24 pb-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Top Rated Movies</h1>
-          <p className="mt-1 text-text-dim">The highest rated movies of all time</p>
-        </div>
-        <MediaGrid items={items} forceType="movie" />
-      </div>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Top Rated Movies"
+        subline="The highest rated films of all time, by audience score."
+        meta={`${items.length} titles`}
+      >
+        <CategoryTabs group="movies" />
+      </PageHeader>
+      <MediaGrid items={items} forceType="movie" />
     </div>
   );
 }

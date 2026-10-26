@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/PageHeader";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { MediaGrid } from "@/components/MediaGrid";
 import { tmdbApi } from "@/lib/tmdb";
 
@@ -17,14 +19,15 @@ export default async function NowPlayingPage() {
   const items = [...p1.results, ...p2.results, ...p3.results];
 
   return (
-    <div className="pt-24 pb-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Now Playing</h1>
-          <p className="mt-1 text-text-dim">Movies currently in cinemas</p>
-        </div>
-        <MediaGrid items={items} forceType="movie" />
-      </div>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Now Playing"
+        subline="What is showing in cinemas this week."
+        meta={`${items.length} titles`}
+      >
+        <CategoryTabs group="movies" />
+      </PageHeader>
+      <MediaGrid items={items} forceType="movie" />
     </div>
   );
 }

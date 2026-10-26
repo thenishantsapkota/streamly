@@ -1,4 +1,5 @@
 import { ProviderRow } from "@/components/ProviderRow";
+import { PageHeader } from "@/components/PageHeader";
 import { PROVIDERS } from "@/lib/providers";
 
 export const revalidate = 3600;
@@ -18,25 +19,28 @@ export const metadata = {
 
 export default function ExclusivesPage() {
   return (
-    <div className="mx-auto max-w-7xl">
-      <header className="px-4 sm:px-6 pt-8 pb-2">
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">Streaming Exclusives</h1>
-        <p className="mt-2 max-w-2xl text-sm text-text-dim">
-          Originals and exclusives from the major streaming services. Jump to a platform:
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {PROVIDERS.map((p) => (
-            <a
-              key={p.slug}
-              href={`#${p.slug}`}
-              className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-dim hover:text-white hover:border-text-dim"
-              style={{ borderColor: p.color + "40" }}
-            >
-              {p.name}
-            </a>
-          ))}
-        </div>
-      </header>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Streaming exclusives"
+        subline="Originals from the big services, all in one place. Jump to a platform."
+        meta={`${PROVIDERS.length} services`}
+      >
+        <nav aria-label="Platforms" className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <ul className="flex w-max divide-x divide-border border border-border">
+            {PROVIDERS.map((p) => (
+              <li key={p.slug}>
+                <a
+                  href={`#${p.slug}`}
+                  className="group flex items-center gap-2 px-4 py-2.5 text-sm text-text-dim transition-colors hover:bg-white hover:text-bg"
+                >
+                  <span aria-hidden className="size-2 shrink-0" style={{ backgroundColor: p.color }} />
+                  {p.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </PageHeader>
 
       {PROVIDERS.map((p) => (
         <ProviderRow key={p.slug} provider={p} variant="full" />

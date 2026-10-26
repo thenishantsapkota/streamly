@@ -15,10 +15,7 @@ export function KeyboardShortcuts() {
 
       if (e.key === "/" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const input = document.querySelector<HTMLInputElement>(
-          'input[placeholder*="Search"]',
-        );
-        input?.focus();
+        window.dispatchEvent(new Event("open-search"));
       }
 
       if (e.key === "Escape") {

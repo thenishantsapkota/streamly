@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { Season } from "@/lib/tmdb";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 type Target = { season: number; episode: number };
 
@@ -14,7 +15,7 @@ type Props = {
 
 /**
  * Buttons for moving to the previous / next episode of a TV show, handling
- * season rollover (last episode of S1 → first episode of S2). Uses TMDB's
+ * season rollover (last episode of S1 to first episode of S2). Uses TMDB's
  * `seasons[].episode_count` so we don't need a per-season fetch.
  */
 export function EpisodeNav({ tvId, seasons, currentSeason, currentEpisode }: Props) {
@@ -52,41 +53,33 @@ export function EpisodeNav({ tvId, seasons, currentSeason, currentEpisode }: Pro
     router.push(`/tv/${tvId}/watch?s=${t.season}&e=${t.episode}`);
   }
 
+  const label = (t: Target) => (t.season === currentSeason ? `E${t.episode}` : `S${t.season} E${t.episode}`);
+
   return (
-    <div className="mt-3 flex items-center justify-between gap-2">
+    <div className="mt-4 grid grid-cols-2 gap-3">
       <button
         type="button"
         disabled={!prev}
         onClick={() => prev && go(prev)}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-text-dim transition hover:text-white hover:border-text-dim disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-text-dim disabled:hover:border-border"
+        className="group flex min-w-0 items-center gap-3 border border-border bg-surface px-4 py-3 text-left transition duration-300 hover:border-brand active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:active:scale-100"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5">
-          <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <span>
-          {prev
-            ? prev.season === currentSeason
-              ? `Prev · E${prev.episode}`
-              : `Prev · S${prev.season}·E${prev.episode}`
-            : "Prev"}
+        <CaretLeftIcon className="size-4 shrink-0 text-text-dim transition duration-300 group-enabled:group-hover:-translate-x-0.5 group-enabled:group-hover:text-brand" weight="bold" aria-hidden />
+        <span className="min-w-0">
+          <span className="block text-[11px] uppercase tracking-wider text-text-dim">Previous</span>
+          <span className="block truncate tabular-nums text-sm font-medium">{prev ? label(prev) : "None"}</span>
         </span>
       </button>
       <button
         type="button"
         disabled={!next}
         onClick={() => next && go(next)}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-text-dim transition hover:text-white hover:border-text-dim disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-text-dim disabled:hover:border-border"
+        className="group flex min-w-0 items-center gap-3 border border-border bg-surface px-4 py-3 text-left transition duration-300 hover:border-brand active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:active:scale-100 justify-end text-right"
       >
-        <span>
-          {next
-            ? next.season === currentSeason
-              ? `Next · E${next.episode}`
-              : `Next · S${next.season}·E${next.episode}`
-            : "Next"}
+        <span className="min-w-0">
+          <span className="block text-[11px] uppercase tracking-wider text-text-dim">Next</span>
+          <span className="block truncate tabular-nums text-sm font-medium transition-colors group-enabled:group-hover:text-brand">{next ? label(next) : "None"}</span>
         </span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5">
-          <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <CaretRightIcon className="size-4 shrink-0 text-text-dim transition duration-300 group-enabled:group-hover:translate-x-0.5 group-enabled:group-hover:text-brand" weight="bold" aria-hidden />
       </button>
     </div>
   );

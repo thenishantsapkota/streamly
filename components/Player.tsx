@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { getWatched, upsertWatched, type WatchedItem } from "@/lib/storage";
 import { CastOnPause, type CastEntry } from "./CastOnPause";
 import { AdBlockerHint } from "./AdBlockerHint";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ArrowsClockwiseIcon, InfoIcon, XIcon } from "@phosphor-icons/react";
+import { EASE_CINEMA } from "./motion";
 
 export type PlayerMediaType = "movie" | "tv" | "anime";
 
@@ -23,14 +26,14 @@ type Props = {
   /** Cast/character info shown when video is paused */
   cast?: CastEntry[];
   /**
-   * For anime: optional TMDB fallback so vidking (which only knows TMDB IDs)
+   * For anime: optional TMDB fallback so vidsrc (which only knows TMDB IDs)
    * can be used as an alternate source. When present, the source switcher
    * is enabled for anime.
    */
   tmdbAlt?: { id: number; type: "movie" | "tv" } | null;
 };
 
-type Source = "vidking" | "videasy";
+type Source = "videasy" | "vidsrc";
 
 const SOURCE_PREF_KEY = "preferred-source-v1";
 const ANIME_SOURCE_PREF_KEY = "preferred-source-anime-v1";
@@ -90,7 +93,7 @@ function normalizeMessage(raw: unknown): NormalizedEvent | null {
 }
 
 function buildSrc(source: Source, props: Props, resumeFrom: number): string {
-  const { id, type, season, episode, color = "e50914", tmdbAlt } = props;
+  const { id, type, season, episode, color = "f0a23b", tmdbAlt } = props;
 
   if (type === "anime") {
     if (source === "videasy") {
@@ -105,37 +108,19 @@ function buildSrc(source: Source, props: Props, resumeFrom: number): string {
       params.set("progress", String(Math.max(0, resumeFrom)));
       return `${base}?${params.toString()}`;
     }
-    // source === "vidking" — use the TMDB fallback (caller guarantees tmdbAlt exists
-    // when "vidking" is selected for anime).
-    const tmdbId = tmdbAlt!.id;
-    const base =
-      tmdbAlt!.type === "movie"
-        ? `https://www.vidking.net/embed/movie/${tmdbId}`
-        : // For TV-format anime we don't know the TMDB season layout, so default
-          // to season 1. Long-running shows (One Piece etc.) split into many
-          // TMDB seasons, so this is best-effort.
-          `https://www.vidking.net/embed/tv/${tmdbId}/1/${episode ?? 1}`;
-    const params = new URLSearchParams({ color, autoPlay: "false" });
-    if (tmdbAlt!.type === "tv") {
-      params.set("nextEpisode", "true");
-      params.set("episodeSelector", "true");
-    }
-    params.set("progress", String(Math.max(0, resumeFrom)));
-    return `${base}?${params.toString()}`;
+    // source === "vidsrc": use the TMDB fallback (caller guarantees tmdbAlt exists
+    // when "vidsrc" is selected for anime). For TV-format anime we don't know the
+    // TMDB season layout, so default to season 1. Best-effort for long runners.
+    return tmdbAlt!.type === "movie"
+      ? `https://vidsrc.mov/embed/movie/${tmdbAlt!.id}`
+      : `https://vidsrc.mov/embed/tv/${tmdbAlt!.id}/1/${episode ?? 1}`;
   }
 
-  if (source === "vidking") {
-    const base =
-      type === "tv"
-        ? `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`
-        : `https://www.vidking.net/embed/movie/${id}`;
-    const params = new URLSearchParams({ color, autoPlay: "false" });
-    if (type === "tv") {
-      params.set("nextEpisode", "true");
-      params.set("episodeSelector", "true");
-    }
-    params.set("progress", String(Math.max(0, resumeFrom)));
-    return `${base}?${params.toString()}`;
+  if (source === "vidsrc") {
+    // vidsrc takes no player params and posts no progress events.
+    return type === "tv"
+      ? `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`
+      : `https://vidsrc.mov/embed/movie/${id}`;
   }
 
   // videasy for movies/tv
@@ -159,22 +144,21 @@ export function Player(props: Props) {
   const showSourceSwitcher = !isAnime || animeHasTmdbFallback;
   const [isPaused, setIsPaused] = useState(false);
   const router = useRouter();
+  const reduce = useReducedMotion();
 
   const SOURCES: { id: Source; label: string }[] =
     isAnime && !animeHasTmdbFallback
       ? [{ id: "videasy", label: "Videasy" }]
       : [
           { id: "videasy", label: "Videasy" },
-          { id: "vidking", label: "Vidking" },
+          { id: "vidsrc", label: "VidSrc" },
         ];
 
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
-  // Default: anime → vidking (when TMDB fallback exists), everything else → videasy.
-  // Users can switch via the source toggle and the choice is remembered per
-  // category (anime vs movies/tv) in localStorage.
-  const [source, setSource] = useState<Source>(
-    isAnime && animeHasTmdbFallback ? "vidking" : "videasy",
-  );
+  // Default to videasy (the only source that reports progress). Users can switch
+  // via the source toggle and the choice is remembered per category (anime vs
+  // movies/tv) in localStorage.
+  const [source, setSource] = useState<Source>("videasy");
   const [showFallbackHint, setShowFallbackHint] = useState(false);
   const [autoFallbackToast, setAutoFallbackToast] = useState<string | null>(null);
   const lastSavedAt = useRef(0);
@@ -190,11 +174,7 @@ export function Player(props: Props) {
       const key = isAnime ? ANIME_SOURCE_PREF_KEY : SOURCE_PREF_KEY;
       try {
         const saved = window.localStorage.getItem(key) as Source | null;
-        if (saved === "vidking" || saved === "videasy") {
-          setSource(saved);
-        } else {
-          setSource(isAnime ? "vidking" : "videasy");
-        }
+        setSource(saved === "vidsrc" ? "vidsrc" : "videasy");
       } catch {
         /* ignore */
       }
@@ -220,32 +200,25 @@ export function Player(props: Props) {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     if (autoFallbackTimerRef.current) clearTimeout(autoFallbackTimerRef.current);
 
+    // vidsrc never posts events, so silence from it isn't a failure signal.
+    if (source !== "videasy") return;
+
     hintTimerRef.current = setTimeout(() => {
       if (!receivedEventRef.current) setShowFallbackHint(true);
     }, FALLBACK_HINT_AFTER_MS);
 
     // After a longer timeout with still no `play`/`timeupdate`, automatically
-    // switch to the alternate source — but only once per page load and only
-    // when an alternate is actually available.
+    // switch to vidsrc, but only once per page load and only when it's available.
     autoFallbackTimerRef.current = setTimeout(() => {
       if (receivedEventRef.current) return;
       if (autoFallbackUsedRef.current) return;
       const canSwitch = !isAnime || animeHasTmdbFallback;
       if (!canSwitch) return;
       autoFallbackUsedRef.current = true;
-      const next: Source = source === "vidking" ? "videasy" : "vidking";
-      setSource(next);
-      setAutoFallbackToast(
-        `Source switched to ${next === "vidking" ? "Vidking" : "Videasy"} — original source didn't respond.`,
-      );
-      try {
-        window.localStorage.setItem(
-          isAnime ? ANIME_SOURCE_PREF_KEY : SOURCE_PREF_KEY,
-          next,
-        );
-      } catch {
-        /* ignore */
-      }
+      // Not persisted: vidsrc can't track progress, so one slow load shouldn't
+      // make it the remembered default.
+      setSource("vidsrc");
+      setAutoFallbackToast("Switched to VidSrc. Videasy didn't respond.");
     }, AUTO_FALLBACK_AFTER_MS);
 
     return () => {
@@ -267,22 +240,13 @@ export function Player(props: Props) {
     autoFallbackUsedRef.current = false;
   }, [id, season, episode]);
 
-  // For anime + vidking we load the iframe with the TMDB id (not the AniList
-  // id) and the TMDB media type (movie/tv, not "anime"). The player echoes
-  // those values back in its events, so the filter below has to expect them
-  // — otherwise every event is dropped and the auto-fallback fires even
-  // though the source is responding.
-  const expectedId = isAnime && source === "vidking" && tmdbAlt ? tmdbAlt.id : id;
-  const expectedMediaType =
-    isAnime && source === "vidking" && tmdbAlt ? tmdbAlt.type : type;
-
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const normalized = normalizeMessage(e.data);
       if (!normalized) return;
       if (
-        String(normalized.id) !== String(expectedId) ||
-        normalized.mediaType !== expectedMediaType
+        String(normalized.id) !== String(id) ||
+        normalized.mediaType !== type
       )
         return;
 
@@ -336,8 +300,6 @@ export function Player(props: Props) {
     season,
     episode,
     router,
-    expectedId,
-    expectedMediaType,
   ]);
 
   function switchSource(next: Source) {
@@ -355,26 +317,49 @@ export function Player(props: Props) {
   }
 
   if (!src) {
-    return <div className="aspect-video w-full rounded-lg bg-surface-2 shimmer" />;
+    return <div className="aspect-video w-full bg-surface-2 shimmer" />;
   }
+
+  const boxMotion = {
+    initial: reduce ? false : ({ opacity: 0, x: -16 } as const),
+    animate: { opacity: 1, x: 0 },
+    exit: reduce ? { opacity: 0 } : { opacity: 0, x: 16 },
+    transition: { duration: 0.45, ease: EASE_CINEMA },
+  };
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-3 flex items-center justify-between gap-3">
         {showSourceSwitcher && (
-          <div className="inline-flex rounded-full border border-border bg-surface p-0.5">
-            {SOURCES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => switchSource(s.id)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                  source === s.id ? "bg-brand text-white" : "text-text-dim hover:text-white"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <span className="hidden text-[11px] uppercase tracking-wider text-text-dim sm:inline">Source</span>
+            <div role="radiogroup" aria-label="Video source" className="inline-flex border border-border bg-surface p-0.5">
+              {SOURCES.map((s) => {
+                const active = source === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => switchSource(s.id)}
+                    className={`relative px-3.5 py-1.5 text-xs font-medium transition-colors duration-300 active:scale-[0.98] ${
+                      active ? "text-on-brand" : "text-text-dim hover:text-text"
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId={`source-indicator-${type}`}
+                        aria-hidden
+                        className="absolute inset-0 bg-brand"
+                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    <span className="relative">{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
         <div className="ml-auto flex items-center gap-2 text-xs text-text-dim">
@@ -384,7 +369,7 @@ export function Player(props: Props) {
 
       <AdBlockerHint />
 
-      <div className="relative w-full overflow-hidden rounded-lg bg-black ring-1 ring-border aspect-video">
+      <div className="relative aspect-video w-full overflow-hidden bg-black shadow-[0_0_0_1px_var(--color-border),0_40px_80px_-24px_rgb(0_0_0/0.9)]">
         <iframe
           key={`${source}-${id}-${season ?? 0}-${episode ?? 0}`}
           src={src}
@@ -396,27 +381,44 @@ export function Player(props: Props) {
         />
       </div>
 
-      {autoFallbackToast && (
-        <div
-          role="status"
-          className="mt-3 rounded-lg border border-brand/40 bg-brand/10 px-4 py-2.5 text-xs sm:text-sm text-white/90"
-        >
-          {autoFallbackToast}
-        </div>
-      )}
-
-      {showFallbackHint && showSourceSwitcher && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm">
-          <span className="text-text-dim">Having trouble loading? Try the alternate source.</span>
-          <button
-            type="button"
-            onClick={() => switchSource(source === "vidking" ? "videasy" : "vidking")}
-            className="rounded-full bg-brand hover:bg-brand-hover px-4 py-1.5 text-xs font-semibold text-white transition"
+      <AnimatePresence initial={false}>
+        {autoFallbackToast && (
+          <motion.div
+            key="auto-fallback"
+            role="status"
+            {...boxMotion}
+            className="mt-3 flex items-center gap-3 border-l-2 border-brand bg-surface px-4 py-3 text-xs text-text sm:text-sm"
           >
-            Switch to {source === "vidking" ? "Videasy" : "Vidking"}
-          </button>
-        </div>
-      )}
+            <ArrowsClockwiseIcon className="size-4 shrink-0 text-brand" weight="bold" aria-hidden />
+            <span className="flex-1">{autoFallbackToast}</span>
+            <button
+              type="button"
+              onClick={() => setAutoFallbackToast(null)}
+              aria-label="Dismiss"
+              className="shrink-0 p-1 text-text-dim transition-colors hover:text-text"
+            >
+              <XIcon className="size-3.5" weight="bold" aria-hidden />
+            </button>
+          </motion.div>
+        )}
+
+        {showFallbackHint && showSourceSwitcher && (
+          <motion.div
+            key="fallback-hint"
+            {...boxMotion}
+            className="mt-3 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3 text-sm"
+          >
+            <span className="text-text-dim">Taking a while to load? Try the other source.</span>
+            <button
+              type="button"
+              onClick={() => switchSource(source === "vidsrc" ? "videasy" : "vidsrc")}
+              className="bg-brand px-4 py-2 text-xs font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+            >
+              Switch to {source === "vidsrc" ? "Videasy" : "VidSrc"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <CastOnPause visible={isPaused} cast={cast} source={isAnime ? "anilist" : "tmdb"} />
     </div>
@@ -425,6 +427,7 @@ export function Player(props: Props) {
 
 function AudioInfo({ isAnime }: { isAnime: boolean }) {
   const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
   const text = isAnime
     ? "Sub & dub: when both are available, choose your audio from the gear icon inside the player. Videasy auto-detects what's offered."
     : "Audio language (sub / dub): when multiple tracks are available for a title, pick one from the gear / settings icon inside the player.";
@@ -432,21 +435,29 @@ function AudioInfo({ isAnime }: { isAnime: boolean }) {
     <div className="relative">
       <button
         type="button"
+        aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 hover:text-white transition"
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 ring-1 ring-inset transition active:scale-[0.98] ${
+          open ? "bg-white text-bg ring-white" : "ring-white/25 hover:bg-white hover:text-bg"
+        }`}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5">
-          <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0Z" />
-          <path d="M12 8v.01M11 12h1v4h1" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <InfoIcon className="size-3.5" weight="bold" aria-hidden />
         <span>{isAnime ? "Sub / Dub" : "Audio"}</span>
       </button>
-      {open && (
-        <div className="absolute right-0 z-10 mt-2 w-72 rounded-lg border border-border bg-surface p-3 text-xs text-text-dim shadow-2xl">
-          {text}
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={reduce ? false : { opacity: 0, x: 8, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: EASE_CINEMA }}
+            className="absolute right-0 z-20 mt-2 w-[min(18rem,calc(100vw-2rem))] origin-top-right border border-border border-t-brand bg-surface p-4 text-xs leading-relaxed text-text-dim shadow-[0_24px_48px_-12px_rgb(0_0_0/0.8)]"
+          >
+            {text}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

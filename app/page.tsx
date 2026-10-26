@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { HomeContent } from "@/components/HomeContent";
 import { ProviderRow } from "@/components/ProviderRow";
+import { RowHeader } from "@/components/RowHeader";
 import { tmdbApi } from "@/lib/tmdb";
 import { anilistApi } from "@/lib/anilist";
 import { HOME_PROVIDERS } from "@/lib/providers";
@@ -25,11 +25,8 @@ export default async function HomePage() {
 
   const providerRows = (
     <>
-      <div className="mt-12 px-4 sm:px-6 flex items-baseline justify-between gap-3">
-        <h2 className="text-xl font-bold tracking-tight">Streaming Exclusives</h2>
-        <Link href="/exclusives" className="text-sm text-text-dim hover:text-white">
-          See all →
-        </Link>
+      <div className="mt-14">
+        <RowHeader title="Streaming exclusives" href="/exclusives" />
       </div>
       {HOME_PROVIDERS.map((p) => (
         <ProviderRow key={p.slug} provider={p} variant="condensed" />

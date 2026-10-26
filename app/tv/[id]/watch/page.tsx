@@ -5,6 +5,8 @@ import { EpisodeNav } from "@/components/EpisodeNav";
 import type { CastEntry } from "@/components/CastOnPause";
 import { backdropUrl, isAnimeTv, posterUrl, profileUrl, tmdbApi } from "@/lib/tmdb";
 import { anilistApi } from "@/lib/anilist";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { Reveal, SplitTitle } from "@/components/motion";
 
 export const revalidate = 3600;
 
@@ -16,9 +18,9 @@ export async function generateMetadata({ params, searchParams }: {
   const sp = await searchParams;
   try {
     const t = await tmdbApi.tv(id);
-    return { title: `${t.name} S${sp.s ?? 1}·E${sp.e ?? 1} — Streamly` };
+    return { title: `${t.name} S${sp.s ?? 1} E${sp.e ?? 1} - Streamly` };
   } catch {
-    return { title: "Watch — Streamly" };
+    return { title: "Watch - Streamly" };
   }
 }
 
@@ -56,22 +58,31 @@ export default async function TvWatchPage({
       personId: c.id,
       personName: c.name,
       personImage: profileUrl(c.profile_path, "w185"),
-      character: c.character || "—",
+      character: c.character || "",
     }));
 
   return (
     <div className="pb-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="min-w-0">
-            <Link href={`/tv/${numId}`} className="text-sm text-text-dim hover:text-white">
-              ← {tv.name}
-            </Link>
-            <div className="text-2xl font-bold tracking-tight">
-              Season {season} · Episode {episode}
-            </div>
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <header className="mb-6 sm:mb-8">
+          <Link
+            href={`/tv/${numId}`}
+            className="group inline-flex items-center gap-2 text-xs uppercase tracking-wider text-text-dim transition-colors hover:text-brand"
+          >
+            <ArrowLeftIcon className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" weight="bold" aria-hidden />
+            Back to series
+          </Link>
+          <div className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-2">
+            <SplitTitle
+              text={tv.name ?? "Untitled"}
+              className="min-w-0 max-w-4xl text-3xl font-semibold leading-[1.05] tracking-tighter sm:text-5xl"
+            />
+            <Reveal y={8} delay={0.2} className="mb-1.5 flex items-center gap-4 tabular-nums text-xs uppercase text-text-dim">
+              <span className="text-brand">Season {season}</span>
+              <span className="text-text">Episode {episode}</span>
+            </Reveal>
           </div>
-        </div>
+        </header>
         <Player
           id={numId}
           type="tv"

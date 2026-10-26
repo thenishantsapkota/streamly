@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/PageHeader";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { AnimeGrid } from "@/components/AnimeGrid";
 import { anilistApi } from "@/lib/anilist";
 
@@ -12,14 +14,15 @@ export default async function TopRatedAnimePage() {
   const items = await anilistApi.topRated(50);
 
   return (
-    <div className="pt-24 pb-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Top Rated Anime</h1>
-          <p className="mt-1 text-text-dim">The highest rated anime of all time</p>
-        </div>
-        <AnimeGrid items={items} />
-      </div>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Top Rated Anime"
+        subline="The highest scored anime of all time."
+        meta={`${items.length} titles`}
+      >
+        <CategoryTabs group="anime" />
+      </PageHeader>
+      <AnimeGrid items={items} />
     </div>
   );
 }

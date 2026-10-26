@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Row } from "@/components/Row";
+import { PageHeader } from "@/components/PageHeader";
 import { tmdbApi } from "@/lib/tmdb";
 import { findGenre, GENRES } from "@/lib/genres";
 
@@ -44,23 +45,22 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   const tvShows = genre.tvId ? results[idx]?.results ?? [] : [];
 
   return (
-    <div className="pt-24 pb-12">
+    <div className="pt-10 pb-12 sm:pt-16">
       <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{genre.name}</h1>
-          <p className="mt-1 text-text-dim">
-            Browse popular {genre.name} movies{genre.tvId ? " and TV shows" : ""}
-          </p>
-        </div>
+        <PageHeader
+          title={genre.name}
+          subline={`Popular ${genre.name.toLowerCase()} films${genre.tvId ? " and series" : ""}, picked by what people are watching.`}
+          meta={`${movies1.length + movies2.length + tvShows.length} titles`}
+        />
 
         {movies1.length > 0 && (
-          <Row title={`Popular ${genre.name} Movies`} items={movies1} forceType="movie" />
+          <Row title="Popular films" items={movies1} forceType="movie" />
         )}
         {movies2.length > 0 && (
-          <Row title={`More ${genre.name} Movies`} items={movies2} forceType="movie" />
+          <Row title="More films" items={movies2} forceType="movie" />
         )}
         {tvShows.length > 0 && (
-          <Row title={`${genre.name} TV Shows`} items={tvShows} forceType="tv" />
+          <Row title="Series" items={tvShows} forceType="tv" />
         )}
       </div>
     </div>

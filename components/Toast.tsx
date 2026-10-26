@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { CheckIcon, InfoIcon } from "@phosphor-icons/react";
+import { EASE_CINEMA } from "./motion";
 
 type ToastItem = { id: number; message: string; type: "success" | "info" };
+
+const DURATION_MS = 2500;
 
 let toastId = 0;
 const listeners = new Set<(t: ToastItem) => void>();
@@ -14,12 +19,13 @@ export function toast(message: string, type: "success" | "info" = "success") {
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const reduce = useReducedMotion();
 
   const add = useCallback((t: ToastItem) => {
     setToasts((prev) => [...prev, t]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((x) => x.id !== t.id));
-    }, 2500);
+    }, DURATION_MS);
   }, []);
 
   useEffect(() => {
@@ -29,44 +35,46 @@ export function ToastContainer() {
     };
   }, [add]);
 
-  if (toasts.length === 0) return null;
-
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9998 flex flex-col items-center gap-2">
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className="toast-enter rounded-full border border-border bg-surface/95 backdrop-blur-xl px-4 py-2 text-sm font-medium shadow-2xl flex items-center gap-2"
-        >
-          {t.type === "success" ? (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth={2.5}
-              className="size-4"
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed bottom-24 left-1/2 z-9998 flex w-[min(92vw,380px)] -translate-x-1/2 flex-col items-stretch gap-2 sm:bottom-28"
+    >
+      <AnimatePresence initial={false}>
+        {toasts.map((t) => (
+          <motion.div
+            key={t.id}
+            layout={!reduce}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, x: 24, transition: { duration: 0.25 } }}
+            transition={{ duration: 0.45, ease: EASE_CINEMA }}
+            className="relative flex items-center gap-3 overflow-hidden bg-surface/95 py-3 pl-4 pr-5 text-sm font-medium shadow-[0_24px_48px_-12px_rgb(0_0_0/0.8)] ring-1 ring-inset ring-border backdrop-blur-xl"
+          >
+            <span
+              className={`grid size-6 shrink-0 place-items-center ${
+                t.type === "success" ? "bg-brand text-on-brand" : "bg-surface-2 text-text-dim"
+              }`}
             >
-              <path
-                d="M20 6 9 17l-5-5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          ) : (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="size-4 text-text-dim"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v.01M12 8v4" strokeLinecap="round" />
-            </svg>
-          )}
-          {t.message}
-        </div>
-      ))}
+              {t.type === "success" ? (
+                <CheckIcon className="size-3.5" weight="bold" aria-hidden />
+              ) : (
+                <InfoIcon className="size-3.5" weight="bold" aria-hidden />
+              )}
+            </span>
+            <span className="min-w-0 flex-1">{t.message}</span>
+            {/* Time remaining */}
+            <motion.span
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 h-px origin-left bg-brand/70"
+              initial={{ scaleX: 1 }}
+              animate={{ scaleX: 0 }}
+              transition={{ duration: DURATION_MS / 1000, ease: "linear" }}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Row } from "@/components/Row";
 import { Top10Row } from "@/components/Top10Row";
 import { AnimeRow } from "@/components/AnimeRow";
 import { RecentlyWatched } from "@/components/RecentlyWatched";
-import { RandomPick } from "@/components/RandomPick";
+import { PickForMe } from "@/components/PickForMe";
 import { tmdbClient, anilistClient } from "@/lib/api-client";
 import { qk } from "@/lib/query-keys";
 import type { MediaItem } from "@/lib/tmdb";
@@ -98,9 +98,6 @@ export function HomeContent({
       {heroItems.length > 0 && <Hero items={heroItems} />}
       <div className="mx-auto max-w-7xl">
         <RecentlyWatched />
-        <div className="mt-6 px-4 sm:px-6">
-          <RandomPick />
-        </div>
         <Top10Row title="Top 10 Today" items={trendingToday.data?.results ?? []} />
         <Row title="Trending This Week" items={trending.data?.results ?? []} viewAllHref="/trending" />
         <Row title="Now Playing" items={nowPlaying.data?.results ?? []} forceType="movie" viewAllHref="/movies/now-playing" />
@@ -117,6 +114,13 @@ export function HomeContent({
         <Row title="Top Rated Movies" items={topMovies.data?.results ?? []} forceType="movie" viewAllHref="/movies/top-rated" />
         <Row title="Top Rated TV" items={topTv.data?.results ?? []} forceType="tv" viewAllHref="/tv/top-rated" />
       </div>
+      <PickForMe
+        items={[
+          ...(trending.data?.results ?? []),
+          ...(popularMovies.data?.results ?? []).map((m) => ({ ...m, media_type: "movie" as const })),
+          ...(popularTv.data?.results ?? []).map((m) => ({ ...m, media_type: "tv" as const })),
+        ]}
+      />
     </div>
   );
 }

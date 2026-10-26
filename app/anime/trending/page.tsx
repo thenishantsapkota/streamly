@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/PageHeader";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { AnimeGrid } from "@/components/AnimeGrid";
 import { anilistApi } from "@/lib/anilist";
 
@@ -12,14 +14,15 @@ export default async function TrendingAnimePage() {
   const items = await anilistApi.trending(50);
 
   return (
-    <div className="pt-24 pb-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Trending Anime</h1>
-          <p className="mt-1 text-text-dim">The most talked about anime right now</p>
-        </div>
-        <AnimeGrid items={items} />
-      </div>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Trending Anime"
+        subline="The anime people are watching this week."
+        meta={`${items.length} titles`}
+      >
+        <CategoryTabs group="anime" />
+      </PageHeader>
+      <AnimeGrid items={items} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { AnimeCard } from "./AnimeCard";
 import { DraggableScroll } from "./DraggableScroll";
+import { RowHeader } from "./RowHeader";
+import { StaggerItem } from "./motion";
 import type { Anime } from "@/lib/anilist";
 
 export function AnimeRow({
@@ -14,21 +15,13 @@ export function AnimeRow({
 }) {
   if (!items?.length) return null;
   return (
-    <section className="mt-10">
-      <div className="mb-3 flex items-baseline justify-between gap-3 px-4 sm:px-6">
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-        {viewAllHref && (
-          <Link
-            href={viewAllHref}
-            className="text-xs sm:text-sm text-text-dim hover:text-white shrink-0"
-          >
-            View all →
-          </Link>
-        )}
-      </div>
-      <DraggableScroll className="no-scrollbar flex gap-3 sm:gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
-        {items.map((a) => (
-          <AnimeCard key={a.id} anime={a} />
+    <section className="mt-14">
+      <RowHeader title={title} href={viewAllHref} />
+      <DraggableScroll className="no-scrollbar flex gap-4 sm:gap-5 overflow-x-auto px-4 sm:px-6 pt-2 pb-4">
+        {items.map((a, i) => (
+          <StaggerItem key={a.id} index={i} className="shrink-0">
+            <AnimeCard anime={a} />
+          </StaggerItem>
         ))}
       </DraggableScroll>
     </section>

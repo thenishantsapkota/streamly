@@ -1,6 +1,6 @@
 # Streamly
 
-A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.org/) for metadata and the [Vidking](https://www.vidking.net/) embeddable player. Continue-watching is tracked via `localStorage`.
+A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.org/) for metadata with [Videasy](https://videasy.net/) and [VidSrc](https://vidsrc.mov/) as embeddable players. Continue-watching is tracked via `localStorage`.
 
 ## Features
 
@@ -9,7 +9,7 @@ A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.
 - Movie detail page with embedded player
 - TV detail page with season/episode picker
 - "Continue Watching" rail backed by `localStorage`, with resume position
-- Listens to the Vidking player's `postMessage` `PLAYER_EVENT`s to record progress
+- Listens to the Videasy player's `postMessage` `PLAYER_EVENT`s to record progress
 
 ## Setup
 

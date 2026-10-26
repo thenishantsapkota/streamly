@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { SpeakerHighIcon, SpeakerXIcon } from "@phosphor-icons/react";
 
 export function TrailerMuteButton({ trailerKey }: { trailerKey: string }) {
   const [muted, setMuted] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const reduce = useReducedMotion();
 
   // Find the trailer iframe in the DOM
   const getIframe = useCallback(() => {
@@ -37,21 +40,25 @@ export function TrailerMuteButton({ trailerKey }: { trailerKey: string }) {
       type="button"
       onClick={toggle}
       aria-label={muted ? "Unmute trailer" : "Mute trailer"}
-      className="rounded-full border border-white/20 bg-black/50 p-2 text-white backdrop-blur transition hover:bg-black/70"
+      aria-pressed={!muted}
+      className="relative inline-flex size-11 items-center justify-center bg-black/40 text-white ring-1 ring-inset ring-white/25 backdrop-blur-sm transition duration-300 hover:bg-white hover:text-bg active:scale-[0.98]"
     >
-      {muted ? (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-          <path d="M11 5 6 9H2v6h4l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
-          <line x1="23" y1="9" x2="17" y2="15" strokeLinecap="round" />
-          <line x1="17" y1="9" x2="23" y2="15" strokeLinecap="round" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-          <path d="M11 5 6 9H2v6h4l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" strokeLinecap="round" />
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" strokeLinecap="round" />
-        </svg>
-      )}
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={muted ? "muted" : "on"}
+          className="inline-flex"
+          initial={reduce ? false : { opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.5 }}
+          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 26 }}
+        >
+          {muted ? (
+            <SpeakerXIcon className="size-4" weight="bold" aria-hidden />
+          ) : (
+            <SpeakerHighIcon className="size-4" weight="bold" aria-hidden />
+          )}
+        </motion.span>
+      </AnimatePresence>
     </button>
   );
 }

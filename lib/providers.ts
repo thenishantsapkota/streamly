@@ -33,7 +33,7 @@ export const PROVIDERS: Provider[] = [
     slug: "disney-plus",
     region: "US",
     color: "#0e6efd",
-    tagline: "Marvel, Star Wars, Pixar — all in one place.",
+    tagline: "Marvel, Star Wars and Pixar.",
   },
   {
     id: 9,

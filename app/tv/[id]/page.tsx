@@ -6,8 +6,10 @@ import { WatchlistButton } from "@/components/WatchlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { TrailerMuteButton } from "@/components/TrailerMuteButton";
 import { isAnimeTv, tmdbApi, IMG, posterUrl, backdropUrl, getYear } from "@/lib/tmdb";
-import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
+import { TrailerBackdrop } from "@/components/TrailerBackdrop";
+import { ParallaxBackdrop, Reveal, SplitTitle } from "@/components/motion";
 import { anilistApi } from "@/lib/anilist";
+import { PlayIcon, StarIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const revalidate = 3600;
 
@@ -74,79 +76,59 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
   const streamOn = usProviders?.flatrate ?? [];
 
   const year = getYear(tv);
+  const seasonCount = tv.number_of_seasons;
+  const epCount = tv.number_of_episodes;
 
   return (
     <div className="pb-12">
-      {/* Netflix-style billboard */}
-      <section className="relative -mt-16 isolate overflow-hidden" style={{ height: "clamp(400px, 70vw * 9/16 + 4rem, 85vh)" }}>
-        {/* Video / backdrop layer — full bleed */}
-        {trailer ? (
-          <div className="absolute inset-[-20%] pointer-events-none">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer.key}&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1`}
-              title=""
-              allow="autoplay"
-              className="h-full w-full border-0"
-              tabIndex={-1}
-              aria-hidden
-            />
-          </div>
-        ) : tv.backdrop_path ? (
-          <div className="absolute inset-0">
-            <Image
-              src={backdropUrl(tv.backdrop_path, "original")!}
-              alt=""
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-              placeholder="blur"
-              blurDataURL={BLUR_DATA_URL_LANDSCAPE}
-            />
-          </div>
-        ) : null}
+      <section className="relative -mt-16 isolate min-h-[100dvh] overflow-hidden sm:min-h-[88dvh]">
+        <ParallaxBackdrop className="absolute inset-0 -z-10">
+          <TrailerBackdrop
+            trailerKey={trailer?.key ?? null}
+            backdrop={backdropUrl(tv.backdrop_path, "original")}
+            title={tv.name ?? "Untitled"}
+          />
+        </ParallaxBackdrop>
+        <div className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-bg/50 via-40% to-bg/10" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-r from-bg/90 via-bg/30 via-55% to-transparent" />
 
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 via-35% to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-bg/80 via-bg/20 via-50% to-transparent" />
-
-        {/* Content overlay at bottom-left */}
-        <div className="absolute inset-x-0 bottom-0 z-10">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-10 sm:pb-14">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-lg max-w-2xl">
-              {tv.name ?? "Untitled"}
-            </h1>
-            {tv.tagline && (
-              <p className="mt-2 italic text-sm sm:text-base text-white/70 drop-shadow">{tv.tagline}</p>
+        <div className="mx-auto flex min-h-[100dvh] max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[88dvh] sm:px-6 sm:pb-16">
+          <Reveal y={12} className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums text-xs uppercase text-white/70">
+            {year && <span>{year}</span>}
+            {seasonCount > 0 && (
+              <span>
+                {seasonCount} season{seasonCount === 1 ? "" : "s"}
+              </span>
             )}
-            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-white/60">
-              {[
-                year,
-                `${tv.number_of_seasons} season${tv.number_of_seasons === 1 ? "" : "s"}`,
-                `${tv.number_of_episodes} ep`,
-                tv.vote_average ? `★ ${tv.vote_average.toFixed(1)}` : "",
-              ]
-                .filter(Boolean)
-                .map((m, i) => (
-                  <span key={i}>
-                    {i > 0 && <span className="mx-1">·</span>}
-                    {m}
-                  </span>
-                ))}
-            </div>
-            <p className="mt-3 max-w-lg text-sm text-white/80 line-clamp-3 drop-shadow">
+            {epCount > 0 && <span>{epCount} episodes</span>}
+            {tv.vote_average ? (
+              <span className="inline-flex items-center gap-1 text-brand">
+                <StarIcon className="size-3" weight="fill" aria-hidden />
+                {tv.vote_average.toFixed(1)}
+              </span>
+            ) : null}
+          </Reveal>
+          <SplitTitle
+            text={tv.name ?? "Untitled"}
+            delay={0.1}
+            className="mt-3 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-tighter sm:text-6xl lg:text-7xl"
+          />
+          {tv.tagline && (
+            <Reveal delay={0.35} y={12}>
+              <p className="mt-4 text-base text-white/70 sm:text-lg">{tv.tagline}</p>
+            </Reveal>
+          )}
+          <Reveal delay={0.45} y={16}>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80 line-clamp-3 sm:text-base">
               {tv.overview}
             </p>
-
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link
                 href={`/tv/${numId}/watch?s=${firstSeason}&e=1`}
-                className="inline-flex items-center gap-2 rounded-md bg-white hover:bg-white/90 px-6 py-2.5 text-sm font-bold text-black transition shadow-lg"
+                className="group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
               >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                Play
+                <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
+                Play S{firstSeason} E1
               </Link>
               <WatchlistButton
                 item={{
@@ -160,74 +142,87 @@ export default async function TvShowPage({ params }: { params: Promise<{ id: str
                 }}
               />
               <ShareButton title={tv.name ?? "Untitled"} text={tv.overview} />
+              {trailer && (
+                <div className="ml-auto">
+                  <TrailerMuteButton trailerKey={trailer.key} />
+                </div>
+              )}
             </div>
-          </div>
+          </Reveal>
         </div>
-
-        {/* Mute button — bottom right */}
-        {trailer && (
-          <div className="absolute bottom-10 sm:bottom-14 right-4 sm:right-6 z-20">
-            <TrailerMuteButton trailerKey={trailer.key} />
-          </div>
-        )}
       </section>
 
-      {/* Detail section below billboard */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-8">
-        <div>
-          <div>
-            {/* Genres */}
-            {tv.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {tv.genres.map((g) => (
-                  <span
-                    key={g.id}
-                    className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs"
-                  >
-                    {g.name}
-                  </span>
-                ))}
-                <span className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs text-text-dim">
-                  {tv.status}
-                </span>
-              </div>
-            )}
+      <div className="mx-auto mt-6 grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <Reveal>
+          <h2 className="text-xl font-semibold tracking-tight">Synopsis</h2>
+          <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-white/80">{tv.overview}</p>
+          {tv.genres.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {tv.genres.map((g) => (
+                <Link
+                  key={g.id}
+                  href={`/genre/${g.name.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`}
+                  className="border border-border px-3 py-1.5 text-xs text-text-dim transition hover:border-brand hover:text-brand"
+                >
+                  {g.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </Reveal>
 
-            {/* Creator */}
+        <Reveal delay={0.1}>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 border-t border-border pt-5 text-sm">
             {creator && (
-              <div className="text-sm mb-2">
-                <span className="text-text-dim">Created by </span>
-                <span className="font-medium">{creator.name}</span>
-              </div>
+              <>
+                <dt className="text-text-dim">Created by</dt>
+                <dd className="font-medium">{creator.name}</dd>
+              </>
             )}
-
-            {/* Providers */}
+            {seasonCount > 0 && (
+              <>
+                <dt className="text-text-dim">Seasons</dt>
+                <dd className="tabular-nums">{seasonCount}</dd>
+              </>
+            )}
+            {epCount > 0 && (
+              <>
+                <dt className="text-text-dim">Episodes</dt>
+                <dd className="tabular-nums">{epCount}</dd>
+              </>
+            )}
+            {tv.status && (
+              <>
+                <dt className="text-text-dim">Status</dt>
+                <dd>{tv.status}</dd>
+              </>
+            )}
             {streamOn.length > 0 && (
-              <div className="mt-3">
-                <span className="text-sm text-text-dim">Stream on </span>
-                <div className="mt-1.5 inline-flex gap-2">
+              <>
+                <dt className="self-center text-text-dim">Stream on</dt>
+                <dd className="flex flex-wrap gap-2">
                   {streamOn.map((p) => (
                     <Image
                       key={p.provider_id}
                       src={`${IMG}/w45${p.logo_path}`}
                       alt={p.provider_name}
                       title={p.provider_name}
-                      width={36}
-                      height={36}
-                      className="size-9 rounded-lg ring-1 ring-border"
-                      sizes="100vw"
+                      width={32}
+                      height={32}
+                      className="size-8 ring-1 ring-border"
+                      sizes="32px"
                     />
                   ))}
-                </div>
-              </div>
+                </dd>
+              </>
             )}
-          </div>
-        </div>
+          </dl>
+        </Reveal>
       </div>
 
       <div className="mx-auto max-w-7xl">
         <SeasonPicker tvId={numId} seasons={tv.seasons} initialSeason={firstSeason} malId={malId} />
-        <Row title="More Like This" items={recs.results} forceType="tv" />
+        <Row title="More like this" items={recs.results} forceType="tv" />
       </div>
     </div>
   );

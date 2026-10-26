@@ -2,7 +2,9 @@
 
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Navbar } from "./Navbar";
+import { Logo } from "./Logo";
 import { RegisterSW } from "./RegisterSW";
 import { SplashScreen } from "./SplashScreen";
 import { BackToTop } from "./BackToTop";
@@ -11,6 +13,25 @@ import { QueryProvider } from "./QueryProvider";
 import { ToastContainer } from "./Toast";
 
 const CHROMELESS_ROUTES = new Set(["/login"]);
+
+const FOOTER_LINKS: { title: string; links: [string, string][] }[] = [
+  {
+    title: "Browse",
+    links: [["/movies", "Films"], ["/tv", "Series"], ["/anime", "Anime"], ["/trending", "Trending"]],
+  },
+  {
+    title: "Discover",
+    links: [["/genre/action", "Action"], ["/genre/comedy", "Comedy"], ["/genre/drama", "Drama"], ["/country", "By country"]],
+  },
+  {
+    title: "Categories",
+    links: [["/movies/now-playing", "Now playing"], ["/movies/top-rated", "Top rated"], ["/tv/airing-today", "Airing today"], ["/exclusives", "Exclusives"]],
+  },
+  {
+    title: "Yours",
+    links: [["/my-list", "My list"], ["/history", "History"], ["/search", "Search"]],
+  },
+];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,63 +47,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:text-white">
         Skip to content
       </a>
-      <Suspense fallback={<div className="fixed inset-x-0 top-0 z-50 h-16" />}>
+      <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-      <main id="main-content" className="pt-16 page-fade-in">{children}</main>
+      <main id="main-content" className="pt-16">{children}</main>
       <BackToTop />
       <ToastContainer />
-      <footer className="border-t border-border mt-24 py-10 text-sm text-text-dim">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">Browse</h3>
-              <ul className="space-y-2">
-                <li><a href="/movies" className="hover:text-white transition">Movies</a></li>
-                <li><a href="/tv" className="hover:text-white transition">TV Shows</a></li>
-                <li><a href="/anime" className="hover:text-white transition">Anime</a></li>
-                <li><a href="/trending" className="hover:text-white transition">Trending</a></li>
-              </ul>
+      <footer className="mt-32 border-t border-border pb-24">
+        <div className="mx-auto max-w-7xl px-4 pt-14 pb-10 sm:px-6">
+          <div className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <Logo size={32} />
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-text-dim">
+                Films, series and anime in one place, with your progress saved as you watch.
+              </p>
             </div>
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">Discover</h3>
-              <ul className="space-y-2">
-                <li><a href="/genre/action" className="hover:text-white transition">Action</a></li>
-                <li><a href="/genre/comedy" className="hover:text-white transition">Comedy</a></li>
-                <li><a href="/genre/drama" className="hover:text-white transition">Drama</a></li>
-                <li><a href="/country" className="hover:text-white transition">By Country</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">Categories</h3>
-              <ul className="space-y-2">
-                <li><a href="/movies/now-playing" className="hover:text-white transition">Now Playing</a></li>
-                <li><a href="/movies/top-rated" className="hover:text-white transition">Top Rated</a></li>
-                <li><a href="/tv/airing-today" className="hover:text-white transition">Airing Today</a></li>
-                <li><a href="/exclusives" className="hover:text-white transition">Exclusives</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">My Streamly</h3>
-              <ul className="space-y-2">
-                <li><a href="/my-list" className="hover:text-white transition">My List</a></li>
-                <li><a href="/history" className="hover:text-white transition">History</a></li>
-                <li><a href="/search" className="hover:text-white transition">Search</a></li>
-              </ul>
-            </div>
+            <nav className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-4 lg:col-span-7">
+              {FOOTER_LINKS.map((col) => (
+                <div key={col.title}>
+                  <h3 className="mb-4 text-white">{col.title}</h3>
+                  <ul className="space-y-2.5">
+                    {col.links.map(([href, label]) => (
+                      <li key={href}>
+                        <Link href={href} className="text-text-dim transition-colors hover:text-brand">
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
           </div>
-          <div className="border-t border-border pt-6 text-center">
-            <p className="inline-flex items-center justify-center gap-1.5">
-              <span>Developed with</span>
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-label="love"
-                className="size-4 text-brand"
-              >
-                <path d="M12 21s-7.5-4.55-10-10A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 10 5c-2.5 5.45-10 10-10 10Z" />
-              </svg>
-              <span>by</span>
+          <div className="mt-14 flex flex-col gap-2 border-t border-border pt-6 text-xs text-text-dim sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              Built by{" "}
               <a
                 href="https://snishant.com.np"
                 target="_blank"
@@ -91,10 +90,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 Nishant
               </a>
-              <span>.</span>
             </p>
-            <p className="mt-2 text-xs">
-              For personal use only — not for commercial use. This product uses the TMDB and AniList APIs but is not endorsed or certified by either.
+            <p className="max-w-xl sm:text-right">
+              Personal, non-commercial project. Uses the TMDB and AniList APIs but is not endorsed or certified by either.
             </p>
           </div>
         </div>

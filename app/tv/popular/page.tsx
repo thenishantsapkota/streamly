@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/PageHeader";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { MediaGrid } from "@/components/MediaGrid";
 import { tmdbApi } from "@/lib/tmdb";
 
@@ -17,14 +19,15 @@ export default async function PopularTvPage() {
   const items = [...p1.results, ...p2.results, ...p3.results];
 
   return (
-    <div className="pt-24 pb-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="px-4 sm:px-6 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Popular TV Shows</h1>
-          <p className="mt-1 text-text-dim">The most popular TV shows right now</p>
-        </div>
-        <MediaGrid items={items} forceType="tv" />
-      </div>
+    <div className="mx-auto max-w-7xl pt-10 pb-12 sm:pt-16">
+      <PageHeader
+        title="Popular Series"
+        subline="The shows everyone is talking about right now."
+        meta={`${items.length} titles`}
+      >
+        <CategoryTabs group="tv" />
+      </PageHeader>
+      <MediaGrid items={items} forceType="tv" />
     </div>
   );
 }

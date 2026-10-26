@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Hero } from "@/components/Hero";
 import { Row } from "@/components/Row";
+import { CategoryTabs } from "@/components/CategoryTabs";
+import { Reveal } from "@/components/motion";
 import { tmdbClient } from "@/lib/api-client";
 import { qk } from "@/lib/query-keys";
 import type { MediaItem } from "@/lib/tmdb";
@@ -39,8 +41,11 @@ export function TvContent({ initial }: Props) {
 
   return (
     <div className="-mt-16">
-      {heroItems.length > 0 && <Hero items={heroItems} />}
+      {heroItems.length > 0 && <Hero items={heroItems} label="Popular now" />}
       <div className="mx-auto max-w-7xl">
+        <Reveal y={12} className="mt-10 px-4 sm:px-6">
+          <CategoryTabs group="tv" />
+        </Reveal>
         <Row title="Airing Today" items={airing.data?.results ?? []} forceType="tv" viewAllHref="/tv/airing-today" />
         <Row title="Popular" items={popular.data?.results ?? []} forceType="tv" viewAllHref="/tv/popular" />
         <Row title="Top Rated" items={topRated.data?.results ?? []} forceType="tv" viewAllHref="/tv/top-rated" />

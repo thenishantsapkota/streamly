@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { DraggableScroll } from "./DraggableScroll";
+import { EASE_CINEMA } from "./motion";
 
 export type CastEntry = {
   /** Person/voice-actor id used to fetch real-life details */
@@ -41,6 +43,7 @@ export function CastOnPause({
   const [active, setActive] = useState<{ entry: CastEntry; rect: DOMRect } | null>(null);
   const cacheRef = useRef(new Map<string, FetchedDetails>());
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reduce = useReducedMotion();
 
   function clearHoverTimer() {
     if (hoverTimerRef.current) {
@@ -57,58 +60,75 @@ export function CastOnPause({
   if (cast.length === 0) return null;
 
   return (
-    <div
-      className={`relative transition-all duration-300 ease-out ${
-        visible
-          ? "mt-3 opacity-100 translate-y-0"
-          : "pointer-events-none mt-0 h-0 overflow-hidden opacity-0 -translate-y-1"
-      }`}
-      aria-hidden={!visible}
-    >
-      <div className="rounded-lg border border-border bg-surface p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold tracking-tight">Cast</h3>
-          <span className="text-xs text-text-dim">Hover for details</span>
-        </div>
-        <DraggableScroll className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-          {cast.map((c) => (
-            <button
-              type="button"
-              key={`${c.personId}-${c.character}`}
-              onMouseEnter={(e) => {
-                clearHoverTimer();
-                const card = e.currentTarget;
-                hoverTimerRef.current = setTimeout(() => {
-                  setActive({ entry: c, rect: card.getBoundingClientRect() });
-                }, HOVER_DELAY_MS);
-              }}
-              onMouseLeave={() => {
-                clearHoverTimer();
-                setActive((prev) => (prev?.entry === c ? null : prev));
-              }}
-              onClick={(e) => {
-                clearHoverTimer();
-                const card = e.currentTarget;
-                setActive((prev) =>
-                  prev?.entry === c ? null : { entry: c, rect: card.getBoundingClientRect() },
-                );
-              }}
-              className="group relative w-24 sm:w-28 shrink-0 text-left"
-            >
-              <div className="aspect-3/4 overflow-hidden rounded-md bg-surface-2 ring-1 ring-border transition group-hover:ring-brand/70">
-                {c.personImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.personImage} alt={c.personName} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[10px] text-text-dim">No photo</div>
-                )}
+    <>
+      <AnimatePresence initial={false}>
+        {visible && (
+          <motion.div
+            key="cast-panel"
+            className="relative overflow-hidden"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            transition={{ duration: 0.5, ease: EASE_CINEMA }}
+          >
+            <div className="mt-4 border-t border-border pt-5">
+              <div className="mb-4 flex items-end gap-4">
+                <h3 className="shrink-0 text-lg font-semibold tracking-tight">
+                  <span className="mr-2 text-xs font-medium uppercase tracking-wider text-brand">Paused</span>
+                  Cast
+                </h3>
+                <span aria-hidden className="mb-1.5 h-px flex-1 bg-border" />
+                <span className="mb-0.5 hidden shrink-0 text-xs text-text-dim sm:inline">Hover for details</span>
               </div>
-              <div className="mt-1.5 line-clamp-1 text-xs font-medium">{c.personName}</div>
-              <div className="line-clamp-1 text-[11px] text-text-dim">as {c.character}</div>
-            </button>
-          ))}
-        </DraggableScroll>
-      </div>
+              <DraggableScroll className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+                {cast.map((c, i) => (
+                  <motion.button
+                    type="button"
+                    key={`${c.personId}-${c.character}`}
+                    initial={reduce ? false : { opacity: 0, x: 32 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: Math.min(i, 7) * 0.04, ease: EASE_CINEMA }}
+                    onMouseEnter={(e) => {
+                      clearHoverTimer();
+                      const card = e.currentTarget;
+                      hoverTimerRef.current = setTimeout(() => {
+                        setActive({ entry: c, rect: card.getBoundingClientRect() });
+                      }, HOVER_DELAY_MS);
+                    }}
+                    onMouseLeave={() => {
+                      clearHoverTimer();
+                      setActive((prev) => (prev?.entry === c ? null : prev));
+                    }}
+                    onClick={(e) => {
+                      clearHoverTimer();
+                      const card = e.currentTarget;
+                      setActive((prev) =>
+                        prev?.entry === c ? null : { entry: c, rect: card.getBoundingClientRect() },
+                      );
+                    }}
+                    className="group relative w-24 shrink-0 text-left sm:w-28"
+                  >
+                    <div className="aspect-3/4 overflow-hidden bg-surface-2 shadow-[0_0_0_1px_var(--color-border)] transition-shadow duration-500 group-hover:shadow-[0_0_0_1px_var(--color-brand)]">
+                      {c.personImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={c.personImage}
+                          alt={c.personName}
+                          className="h-full w-full object-cover grayscale-[35%] transition duration-700 ease-cinema group-hover:scale-105 group-hover:grayscale-0"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[10px] text-text-dim">No photo</div>
+                      )}
+                    </div>
+                    <div className="mt-2 line-clamp-1 text-xs font-medium transition-colors group-hover:text-brand">{c.personName}</div>
+                    {c.character && <div className="line-clamp-1 text-[11px] text-text-dim">as {c.character}</div>}
+                  </motion.button>
+                ))}
+              </DraggableScroll>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {active && (
         <>
@@ -127,7 +147,7 @@ export function CastOnPause({
           />
         </>
       )}
-    </div>
+    </>
   );
 }
 
@@ -144,6 +164,7 @@ function CastPopover({
   anchorRect: DOMRect;
   onClose: () => void;
 }) {
+  const reduce = useReducedMotion();
   const cacheKey = `${source}-person-${entry.personId}`;
   const charKey = source === "anilist" && entry.characterId ? `anilist-char-${entry.characterId}` : null;
 
@@ -233,28 +254,34 @@ function CastPopover({
         /* keep open while hovering popover */
       }}
       onMouseLeave={onClose}
-      className="fixed z-40 w-80 -translate-y-full rounded-lg border border-border bg-surface p-3 shadow-2xl"
+      className="fixed z-40 w-[min(20rem,calc(100vw-1rem))] -translate-y-full"
       style={{ top, left }}
       role="tooltip"
     >
+      <motion.div
+        initial={reduce ? false : { opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.35, ease: EASE_CINEMA }}
+        className="border border-border border-t-brand bg-surface p-4 shadow-[0_24px_48px_-12px_rgb(0_0_0/0.85)]"
+      >
       <div className="flex gap-3">
         {person?.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={person.image}
             alt=""
-            className="h-20 w-16 shrink-0 rounded object-cover ring-1 ring-border"
+            className="h-20 w-16 shrink-0 object-cover ring-1 ring-border"
           />
         ) : (
-          <div className="h-20 w-16 shrink-0 rounded bg-surface-2 ring-1 ring-border" />
+          <div className="h-20 w-16 shrink-0 bg-surface-2 ring-1 ring-border" />
         )}
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold">{person?.name ?? entry.personName}</div>
+          <div className="font-display text-base font-semibold leading-tight">{person?.name ?? entry.personName}</div>
           <div className="text-xs text-text-dim">
-            as <span className="text-white/90">{entry.character}</span>
+            as <span className="text-brand">{entry.character}</span>
           </div>
           {person?.blurbLines.map((b, i) => (
-            <div key={i} className="mt-0.5 text-[11px] text-text-dim">
+            <div key={i} className="mt-0.5 tabular-nums text-[11px] text-text-dim">
               {b}
             </div>
           ))}
@@ -277,6 +304,7 @@ function CastPopover({
           </div>
         </div>
       )}
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Row } from "./Row";
+import { Reveal } from "./motion";
 import { tmdbApi } from "@/lib/tmdb";
 import type { Provider } from "@/lib/providers";
 
@@ -37,22 +38,18 @@ export async function ProviderRow({ provider, variant = "condensed" }: Props) {
   if (!movies.results.length && !tv.results.length) return null;
 
   return (
-    <section
-      id={provider.slug}
-      className="mt-12 scroll-mt-20 px-4 sm:px-6"
-      style={{ borderColor: provider.color }}
-    >
-      <div
-        className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-l-4 pl-3"
-        style={{ borderColor: provider.color }}
-      >
-        <h2 className="text-2xl font-bold tracking-tight">{provider.name}</h2>
-        <span className="text-sm text-text-dim">{provider.tagline}</span>
-      </div>
-      <div className="-mx-4 sm:-mx-6">
-        <Row title="Movies" items={movies.results} forceType="movie" />
-        <Row title="TV Shows" items={tv.results} forceType="tv" />
-      </div>
+    <section id={provider.slug} className="mt-20 scroll-mt-24 first-of-type:mt-8 [&>section]:mt-10">
+      <Reveal className="px-4 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t border-border pt-6">
+          <div className="flex items-center gap-4">
+            <span aria-hidden className="size-3 shrink-0" style={{ backgroundColor: provider.color }} />
+            <h2 className="text-3xl font-semibold tracking-tighter sm:text-5xl">{provider.name}</h2>
+          </div>
+          <p className="max-w-sm text-sm text-text-dim">{provider.tagline}</p>
+        </div>
+      </Reveal>
+      <Row title="Films" items={movies.results} forceType="movie" />
+      <Row title="Series" items={tv.results} forceType="tv" />
     </section>
   );
 }

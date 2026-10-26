@@ -245,7 +245,7 @@ export const tmdbApi = {
 
   /**
    * Search TMDB for an anime title and return the best Japanese-language match.
-   * Used to give vidking (which only supports TMDB IDs) a chance at playing anime.
+   * Used to give vidsrc (which only supports TMDB IDs) a chance at playing anime.
    */
   findAnimeTmdbId: async (
     title: string,

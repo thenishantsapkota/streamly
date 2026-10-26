@@ -2,17 +2,17 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Streamly — Watch movies, TV & anime",
+    name: "Streamly: Watch movies, TV & anime",
     short_name: "Streamly",
-    description: "Watch movies, TV shows & anime — all in one place.",
+    description: "Watch movies, TV shows & anime in one place.",
     id: "/",
     start_url: "/",
     scope: "/",
     display: "standalone",
     display_override: ["standalone", "minimal-ui"],
     orientation: "any",
-    background_color: "#0a0a0c",
-    theme_color: "#0a0a0c",
+    background_color: "#0a0a0a",
+    theme_color: "#0a0a0a",
     lang: "en",
     dir: "ltr",
     categories: ["entertainment", "movies", "tv", "anime"],

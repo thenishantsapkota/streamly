@@ -3,31 +3,32 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { CaretLeftIcon, CaretRightIcon, PlayIcon, StarIcon } from "@phosphor-icons/react";
 import { backdropUrl, getTitle, getYear, type MediaItem, type MediaType } from "@/lib/tmdb";
 import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
+import { EASE_CINEMA } from "./motion";
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 7000;
+const TAB_COUNT = 5;
 
-export function Hero({ items }: { items: MediaItem[] }) {
-  const slides = items.filter((i) => i.backdrop_path).slice(0, 10);
+/**
+ * Editorial billboard: text column on the left, framed backdrop on the right,
+ * a blurred copy of the art filling the page behind both. Slides change with
+ * a clip-path wipe and the title rises word by word.
+ */
+export function Hero({ items, label = "Trending now" }: { items: MediaItem[]; label?: string }) {
+  const slides = items.filter((i) => i.backdrop_path).slice(0, TAB_COUNT);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
 
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.touches[0].clientX;
-    setPaused(true);
-  }
-  function onTouchEnd(e: React.TouchEvent) {
-    setPaused(false);
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartX.current = null;
-    if (Math.abs(dx) < 50) return;
-    if (dx < 0) goTo(index + 1);
-    else goTo(index - 1);
-  }
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const artY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const goTo = useCallback(
     (i: number) => {
@@ -37,20 +38,16 @@ export function Hero({ items }: { items: MediaItem[] }) {
     [slides.length],
   );
 
-  // Autoplay
   useEffect(() => {
     if (paused || slides.length <= 1) return;
-    timerRef.current = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
-    }, AUTOPLAY_MS);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [paused, slides.length]);
+    const t = setTimeout(() => goTo(index + 1), AUTOPLAY_MS);
+    return () => clearTimeout(t);
+  }, [paused, index, slides.length, goTo]);
 
-  // Keyboard nav
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "ArrowLeft") goTo(index - 1);
       else if (e.key === "ArrowRight") goTo(index + 1);
     }
@@ -60,127 +57,183 @@ export function Hero({ items }: { items: MediaItem[] }) {
 
   if (slides.length === 0) return null;
 
+  const item = slides[index];
+  const type: MediaType = item.media_type === "tv" ? "tv" : "movie";
+  const title = getTitle(item);
+  const href = `/${type}/${item.id}`;
+  const bg = backdropUrl(item.backdrop_path, "original");
+  const words = title.split(" ");
+
   return (
     <section
-      className="relative h-[60vh] min-h-95 sm:h-[68vh] sm:min-h-105 w-full overflow-hidden touch-pan-y"
+      ref={sectionRef}
+      className="relative isolate overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
+      onTouchStart={(e) => {
+        touchStartX.current = e.touches[0].clientX;
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current == null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        if (Math.abs(dx) > 50) goTo(dx < 0 ? index + 1 : index - 1);
+      }}
       aria-roledescription="carousel"
     >
-      {slides.map((item, i) => {
-        const type: MediaType = item.media_type === "tv" ? "tv" : "movie";
-        const bg = backdropUrl(item.backdrop_path, "original");
-        const title = getTitle(item);
-        const active = i === index;
-        return (
-          <div
-            key={item.id}
-            className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-              active ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-            aria-hidden={!active}
-          >
-            {bg && (
-              <Image
-                src={bg}
-                alt=""
-                fill
-                sizes="100vw"
-                priority={i === 0}
-                placeholder="blur"
-                blurDataURL={BLUR_DATA_URL_LANDSCAPE}
-                className={`object-cover transition-transform duration-8000 ease-out ${
-                  active ? "scale-105" : "scale-100"
-                }`}
-              />
-            )}
-            <div className="absolute inset-0 bg-linear-to-t from-bg via-bg/40 to-transparent" />
-            <div className="absolute inset-0 bg-linear-to-r from-bg/80 via-transparent to-transparent" />
+      {/* Ambient layer: blurred art behind everything */}
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={`amb-${item.id}`}
+          className="absolute inset-0 -z-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2 }}
+        >
+          {bg && (
+            <Image src={bg} alt="" fill sizes="50vw" className="scale-125 object-cover opacity-35 blur-3xl" />
+          )}
+        </motion.div>
+      </AnimatePresence>
+      <div className="absolute inset-0 -z-10 bg-linear-to-b from-bg/40 via-bg/70 to-bg" />
 
-            <div className="relative z-10 mx-auto max-w-7xl h-full px-4 sm:px-6 flex flex-col justify-end pb-20 sm:pb-28">
-              <div className="max-w-2xl">
-                <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-dim">
-                  <span className="rounded bg-brand/90 px-1.5 py-0.5 text-white">
-                    #{i + 1} Trending
-                  </span>
-                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-white/80">
-                    {type === "movie" ? "Movie" : "TV"}
-                  </span>
-                  <span>{getYear(item)}</span>
-                  {item.vote_average > 0 && <span>★ {item.vote_average.toFixed(1)}</span>}
-                </div>
-                <h1 className="text-3xl sm:text-6xl font-bold tracking-tight drop-shadow">{title}</h1>
-                <p className="mt-3 line-clamp-2 sm:line-clamp-3 text-sm sm:text-base text-text-dim">
-                  {item.overview}
-                </p>
-                <div className="mt-6 flex gap-3">
-                  <Link
-                    href={`/${type}/${item.id}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-brand hover:bg-brand-hover px-5 py-2.5 text-sm font-semibold text-white transition"
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-10 pt-24 sm:px-6 lg:min-h-[92dvh] lg:grid-cols-12 lg:items-center lg:gap-10 lg:pb-20 lg:pt-28">
+        {/* Art */}
+        <motion.div style={reduce ? undefined : { y: artY }} className="relative lg:order-2 lg:col-span-7">
+          <div className="relative aspect-video w-full overflow-hidden bg-surface shadow-[0_40px_80px_-20px_rgb(0_0_0/0.9)]">
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.div
+                key={item.id}
+                className="absolute inset-0"
+                initial={reduce ? { opacity: 0 } : { clipPath: "inset(0 0 0 100%)" }}
+                animate={reduce ? { opacity: 1 } : { clipPath: "inset(0 0 0 0%)" }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0.6 }}
+                transition={{ duration: 1.1, ease: EASE_CINEMA }}
+              >
+                {bg && (
+                  <motion.div
+                    className="absolute inset-0"
+                    initial={reduce ? false : { scale: 1.15 }}
+                    animate={{ scale: 1.02 }}
+                    transition={{ duration: AUTOPLAY_MS / 1000 + 1.5, ease: "linear" }}
                   >
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Play
-                  </Link>
-                  <Link
-                    href={`/${type}/${item.id}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition"
-                  >
-                    More info
-                  </Link>
-                </div>
+                    <Image
+                      src={bg}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 60vw"
+                      priority={index === 0}
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL_LANDSCAPE}
+                      className="object-cover"
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+            <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
+          </div>
+
+          {slides.length > 1 && (
+            <div className="absolute -bottom-5 right-4 sm:right-6">
+              <div className="flex gap-2">
+              <button
+                type="button"
+                aria-label="Previous slide"
+                onClick={() => goTo(index - 1)}
+                className="grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
+              >
+                <CaretLeftIcon className="size-4" weight="bold" aria-hidden />
+              </button>
+              <button
+                type="button"
+                aria-label="Next slide"
+                onClick={() => goTo(index + 1)}
+                className="grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
+              >
+                <CaretRightIcon className="size-4" weight="bold" aria-hidden />
+              </button>
               </div>
             </div>
-          </div>
-        );
-      })}
+          )}
+        </motion.div>
 
-      {/* Prev / Next */}
-      {slides.length > 1 && (
-        <>
-          <button
-            type="button"
-            aria-label="Previous slide"
-            onClick={() => goTo(index - 1)}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/70 p-2.5 text-white backdrop-blur transition"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-5">
-              <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            onClick={() => goTo(index + 1)}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/70 p-2.5 text-white backdrop-blur transition"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-5">
-              <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+        {/* Copy */}
+        <motion.div style={reduce ? undefined : { y: textY, opacity: fade }} className="lg:order-1 lg:col-span-5">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={item.id}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -16 }}
+              transition={{ duration: 0.35, ease: EASE_CINEMA }}
+            >
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: EASE_CINEMA }}
+                className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums text-xs uppercase text-text-dim"
+              >
+                <span className="text-brand">{label}</span>
+                <span>{type === "movie" ? "Film" : "Series"}</span>
+                <span>{getYear(item)}</span>
+                {item.vote_average > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <StarIcon className="size-3" weight="fill" aria-hidden />
+                    {item.vote_average.toFixed(1)}
+                  </span>
+                )}
+              </motion.div>
 
-          {/* Indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
-            {slides.map((_, i) => {
-              const active = i === index;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => goTo(i)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    active ? "w-8 bg-brand" : "w-3 bg-white/40 hover:bg-white/70"
-                  }`}
-                />
-              );
-            })}
-          </div>
-        </>
-      )}
+              <h1 aria-label={title} className="mt-4 text-4xl font-semibold leading-[1.02] tracking-tighter sm:text-5xl xl:text-6xl">
+                {words.map((w, i) => (
+                  <span key={`${w}-${i}`} aria-hidden className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-bottom">
+                    <motion.span
+                      className="inline-block"
+                      initial={reduce ? false : { y: "110%", rotate: 4 }}
+                      animate={{ y: "0%", rotate: 0 }}
+                      transition={{ duration: 0.9, delay: 0.08 + i * 0.07, ease: EASE_CINEMA }}
+                    >
+                      {w}
+                      {i < words.length - 1 ? " " : ""}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+
+              <motion.p
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: EASE_CINEMA }}
+                className="mt-5 max-w-md text-sm leading-relaxed text-white/75 line-clamp-3 sm:text-base"
+              >
+                {item.overview}
+              </motion.p>
+
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.42, ease: EASE_CINEMA }}
+                className="mt-8 flex flex-wrap gap-3"
+              >
+                <Link
+                  href={href}
+                  className="group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                >
+                  <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
+                  Watch now
+                </Link>
+                <Link
+                  href={href}
+                  className="inline-flex items-center px-6 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+                >
+                  Details
+                </Link>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
     </section>
   );
 }

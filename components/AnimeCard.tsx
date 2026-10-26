@@ -1,54 +1,20 @@
-import Image from "next/image";
-import Link from "next/link";
 import { animeTitle, type Anime } from "@/lib/anilist";
-import { BLUR_DATA_URL } from "@/lib/image";
+import { PosterCard } from "./PosterCard";
 
 export function AnimeCard({ anime, fluid }: { anime: Anime; fluid?: boolean }) {
-  const title = animeTitle(anime);
-  const poster = anime.coverImage.extraLarge || anime.coverImage.large;
   return (
-    <Link
+    <PosterCard
       href={`/anime/${anime.id}`}
-      className={`group relative block ${fluid ? "w-full" : "w-34 sm:w-45 shrink-0"} transition-transform duration-200 hover:-translate-y-1`}
-    >
-      <div className="aspect-2/3 overflow-hidden rounded-lg bg-surface-2 ring-1 ring-border transition-shadow duration-200 group-hover:ring-brand/70 group-hover:shadow-lg group-hover:shadow-black/40">
-        {poster ? (
-          <Image
-            src={poster}
-            alt={title}
-            width={460}
-            height={690}
-            sizes="(max-width: 640px) 136px, 180px"
-            placeholder="blur"
-            blurDataURL={BLUR_DATA_URL}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-text-dim">
-            No image
-          </div>
-        )}
-        {anime.averageScore != null && (
-          <div className="absolute top-2 left-2 rounded-md bg-black/70 px-1.5 py-0.5 text-xs font-medium backdrop-blur">
-            ★ {(anime.averageScore / 10).toFixed(1)}
-          </div>
-        )}
-        {/* Play overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <div className="rounded-full bg-white/90 p-2.5 shadow-lg text-black">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div className="mt-2 px-0.5">
-        <div className="line-clamp-1 text-sm font-medium">{title}</div>
-        <div className="text-xs text-text-dim">
-          {anime.seasonYear ?? ""} · {anime.format ?? "Anime"}
-          {anime.episodes ? ` · ${anime.episodes} ep` : ""}
-        </div>
-      </div>
-    </Link>
+      title={animeTitle(anime)}
+      poster={anime.coverImage.extraLarge || anime.coverImage.large}
+      meta={[
+        anime.seasonYear ? String(anime.seasonYear) : "",
+        anime.format ?? "Anime",
+        anime.episodes ? `${anime.episodes} ep` : "",
+      ]}
+      rating={anime.averageScore != null ? anime.averageScore / 10 : null}
+      overview={anime.description?.replace(/<[^>]+>/g, "") ?? undefined}
+      fluid={fluid}
+    />
   );
 }

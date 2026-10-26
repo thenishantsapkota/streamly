@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { backdropUrl, posterUrl, type Genre } from "@/lib/tmdb";
 import { BLUR_DATA_URL, BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
+import { ParallaxBackdrop, Reveal, SplitTitle, TiltCard } from "./motion";
 
 type Props = {
   title: string;
@@ -16,56 +17,75 @@ export function DetailsHeader({ title, tagline, overview, posterPath, backdropPa
   const bg = backdropUrl(backdropPath, "original");
   const poster = posterUrl(posterPath, "w500");
   return (
-    <section className="relative">
+    <section className="relative -mt-16 isolate overflow-hidden">
       {bg && (
-        <div className="absolute inset-x-0 top-0 h-105 -z-10 overflow-hidden">
-          <Image src={bg} alt="" fill sizes="100vw" placeholder="blur" blurDataURL={BLUR_DATA_URL_LANDSCAPE} className="object-cover opacity-40" />
-          <div className="absolute inset-0 bg-linear-to-b from-transparent via-bg/70 to-bg" />
-        </div>
+        <ParallaxBackdrop className="absolute inset-0 -z-10">
+          <Image
+            src={bg}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL_LANDSCAPE}
+            className="object-cover opacity-50"
+          />
+        </ParallaxBackdrop>
       )}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 sm:pt-8 pb-6 flex gap-4 sm:gap-6">
-        <div className="relative block w-24 sm:w-44 shrink-0">
-          {poster ? (
-            <Image
-              src={poster}
-              alt={title}
-              width={500}
-              height={750}
-              sizes="(max-width: 640px) 96px, 176px"
-              placeholder="blur"
-              blurDataURL={BLUR_DATA_URL}
-              className="aspect-2/3 w-full rounded-lg object-cover ring-1 ring-border"
-            />
-          ) : (
-            <div className="aspect-2/3 w-full rounded-lg bg-surface-2" />
+      <div className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-bg/70 via-40% to-bg/20" />
+      <div className="absolute inset-0 -z-10 bg-linear-to-r from-bg/90 via-bg/40 to-transparent" />
+
+      <div className="mx-auto flex max-w-7xl items-end gap-5 px-4 pb-10 pt-28 sm:gap-8 sm:px-6 sm:pb-14 sm:pt-36">
+        <Reveal className="w-24 shrink-0 sm:w-44">
+          <TiltCard className="aspect-2/3">
+            <div className="relative h-full w-full overflow-hidden bg-surface-2 shadow-[0_0_0_1px_var(--color-border),0_24px_48px_-12px_rgb(0_0_0/0.85)]">
+              {poster && (
+                <Image
+                  src={poster}
+                  alt={title}
+                  fill
+                  sizes="(max-width: 640px) 96px, 176px"
+                  placeholder="blur"
+                  blurDataURL={BLUR_DATA_URL}
+                  className="object-cover"
+                />
+              )}
+            </div>
+          </TiltCard>
+        </Reveal>
+        <div className="min-w-0 flex-1">
+          {meta.length > 0 && (
+            <Reveal y={12} className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums text-xs uppercase text-text-dim">
+              {meta.map((m, i) => (
+                <span key={i}>{m}</span>
+              ))}
+            </Reveal>
+          )}
+          <SplitTitle
+            text={title}
+            delay={0.1}
+            className="mt-2 text-3xl font-semibold leading-[1.05] tracking-tighter sm:text-5xl"
+          />
+          {tagline && (
+            <Reveal delay={0.3} y={12}>
+              <p className="mt-2 text-sm text-white/70 sm:text-base">{tagline}</p>
+            </Reveal>
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-5xl font-bold tracking-tight">{title}</h1>
-          {tagline && <p className="mt-1 italic text-sm sm:text-base text-text-dim">{tagline}</p>}
-          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-dim">
-            {meta.map((m, i) => (
-              <span key={i} className="flex items-center gap-2">
-                {i > 0 && <span className="text-border">•</span>}
-                <span>{m}</span>
+      </div>
+
+      <Reveal className="mx-auto max-w-7xl px-4 pb-6 sm:px-6">
+        {genres && genres.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {genres.map((g) => (
+              <span key={g.id} className="border border-border px-3 py-1.5 text-xs text-text-dim">
+                {g.name}
               </span>
             ))}
           </div>
-          {genres && genres.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {genres.map((g) => (
-                <span
-                  key={g.id}
-                  className="rounded-full border border-border bg-surface-2 px-2.5 py-0.5 text-xs"
-                >
-                  {g.name}
-                </span>
-              ))}
-            </div>
-          )}
-          <p className="mt-4 max-w-3xl text-sm sm:text-base text-white/90">{overview}</p>
-        </div>
-      </div>
+        )}
+        <p className="mt-4 max-w-[65ch] text-base leading-relaxed text-white/80">{overview}</p>
+      </Reveal>
     </section>
   );
 }
