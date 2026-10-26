@@ -1,3 +1,4 @@
+import { cached, HOUR } from "./cache";
 const ANILIST = "https://graphql.anilist.co";
 
 export type AnimeFormat = "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC";
@@ -63,16 +64,18 @@ const DETAIL_FIELDS = `
 `;
 
 async function gql<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
-  const res = await fetch(ANILIST, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ query, variables }),
-    next: { revalidate: 3600 },
+  const body = JSON.stringify({ query, variables });
+  return cached(`anilist:${body}`, HOUR, async () => {
+    const res = await fetch(ANILIST, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body,
+    });
+    if (!res.ok) throw new Error(`AniList ${res.status}`);
+    const json = (await res.json()) as { data: T; errors?: { message: string }[] };
+    if (json.errors?.length) throw new Error(json.errors[0].message);
+    return json.data;
   });
-  if (!res.ok) throw new Error(`AniList ${res.status}`);
-  const json = (await res.json()) as { data: T; errors?: { message: string }[] };
-  if (json.errors?.length) throw new Error(json.errors[0].message);
-  return json.data;
 }
 
 export const anilistApi = {

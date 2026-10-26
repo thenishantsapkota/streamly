@@ -1,7 +1,6 @@
-"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRightIcon, StarIcon, XIcon } from "@phosphor-icons/react";
 import { EASE_CINEMA } from "./motion";

@@ -1,3 +1,5 @@
+import { cached, HOUR } from "./cache";
+
 const TMDB_BASE = "https://api.themoviedb.org/3";
 export const IMG = "https://image.tmdb.org/t/p";
 
@@ -141,15 +143,17 @@ export function profileUrl(path: string | null, size: "w185" | "h632" | "origina
 async function tmdb<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
-    throw new Error("TMDB_API_KEY is not set. Add it to .env.local");
+    throw new Error("TMDB_API_KEY is not set. Add it to .env");
   }
   const url = new URL(`${TMDB_BASE}${path}`);
   url.searchParams.set("api_key", apiKey);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
 
-  const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error(`TMDB ${res.status}: ${path}`);
-  return res.json() as Promise<T>;
+  return cached(url.toString(), HOUR, async () => {
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error(`TMDB ${res.status}: ${path}`);
+    return res.json() as Promise<T>;
+  });
 }
 
 export const tmdbApi = {
@@ -205,6 +209,11 @@ export const tmdbApi = {
 
   trendingTv: (window: "day" | "week" = "week") =>
     tmdb<{ results: MediaItem[] }>(`/trending/tv/${window}`),
+
+  upcomingMovies: (page = 1) =>
+    tmdb<{ results: MediaItem[] }>("/movie/upcoming", { page, region: "US" }),
+
+  onTheAirTv: (page = 1) => tmdb<{ results: MediaItem[] }>("/tv/on_the_air", { page }),
 
   discoverByGenre: (type: "movie" | "tv", genreId: number, page = 1) =>
     tmdb<{ results: MediaItem[] }>(`/discover/${type}`, {

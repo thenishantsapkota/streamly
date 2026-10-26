@@ -1,8 +1,7 @@
-"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/Image";
+import { Link } from "@/lib/router-compat";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PlayIcon, StarIcon } from "@phosphor-icons/react";
 import { stillUrl, type Episode, type Season } from "@/lib/tmdb";

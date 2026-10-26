@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { notFound } from "next/navigation";
 import { GlobeHemisphereWestIcon } from "@phosphor-icons/react/dist/ssr";
 import { PageHeader } from "@/components/PageHeader";

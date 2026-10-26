@@ -1,12 +1,8 @@
-"use client";
 
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "motion/react";
 import { EASE_CINEMA } from "./motion";
 import { MARK_ACCENT, MARK_BARS, MARK_LIGHT, MARK_PLAY, MARK_VIEWBOX } from "@/lib/brand-mark";
-import { tmdbClient, anilistClient } from "@/lib/api-client";
-import { qk } from "@/lib/query-keys";
 
 const SEEN_KEY = "splash-seen-v2";
 let shouldPlay: boolean | null = null;
@@ -14,22 +10,6 @@ let shouldPlay: boolean | null = null;
 export function SplashScreen() {
   const [phase, setPhase] = useState<"in" | "out" | "done">("in");
   const reduce = useReducedMotion();
-  const queryClient = useQueryClient();
-
-  // Prefetch home page data while the splash animation plays
-  useEffect(() => {
-    queryClient.prefetchQuery({ queryKey: qk.trending("week"), queryFn: () => tmdbClient.trending("week") });
-    queryClient.prefetchQuery({ queryKey: qk.trending("day"), queryFn: () => tmdbClient.trending("day") });
-    queryClient.prefetchQuery({ queryKey: qk.popularMovies(), queryFn: () => tmdbClient.popularMovies() });
-    queryClient.prefetchQuery({ queryKey: qk.popularTv(), queryFn: () => tmdbClient.popularTv() });
-    queryClient.prefetchQuery({ queryKey: qk.topRatedMovies(), queryFn: () => tmdbClient.topRatedMovies() });
-    queryClient.prefetchQuery({ queryKey: qk.topRatedTv(), queryFn: () => tmdbClient.topRatedTv() });
-    queryClient.prefetchQuery({ queryKey: qk.nowPlayingMovies(), queryFn: () => tmdbClient.nowPlayingMovies() });
-    queryClient.prefetchQuery({ queryKey: qk.trendingAnime(), queryFn: () => anilistClient.trending(20) });
-    queryClient.prefetchQuery({ queryKey: qk.popularAnime(), queryFn: () => anilistClient.popular(20) });
-    queryClient.prefetchQuery({ queryKey: qk.bollywoodMovies(), queryFn: () => tmdbClient.discoverByCountry("movie", "IN") });
-    queryClient.prefetchQuery({ queryKey: qk.bollywoodTv(), queryFn: () => tmdbClient.discoverByCountry("tv", "IN") });
-  }, [queryClient]);
 
   useEffect(() => {
     // Decide once per page load; dev-mode effect double-runs must not see

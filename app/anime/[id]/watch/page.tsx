@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import { Reveal, SplitTitle } from "@/components/motion";
 import { Player } from "@/components/Player";

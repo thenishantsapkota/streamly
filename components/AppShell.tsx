@@ -1,15 +1,13 @@
-"use client";
 
 import { Suspense } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname } from "@/lib/router-compat";
+import { Link } from "@/lib/router-compat";
 import { Navbar } from "./Navbar";
 import { Logo } from "./Logo";
 import { RegisterSW } from "./RegisterSW";
 import { SplashScreen } from "./SplashScreen";
 import { BackToTop } from "./BackToTop";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
-import { QueryProvider } from "./QueryProvider";
 import { ToastContainer } from "./Toast";
 
 const CHROMELESS_ROUTES = new Set(["/login"]);
@@ -40,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (chromeless) return <>{children}</>;
 
   return (
-    <QueryProvider>
+    <>
       <SplashScreen />
       <RegisterSW />
       <KeyboardShortcuts />
@@ -97,6 +95,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
-    </QueryProvider>
+    </>
   );
 }

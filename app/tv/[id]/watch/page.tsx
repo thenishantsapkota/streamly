@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { Player } from "@/components/Player";
 import { SeasonPicker } from "@/components/SeasonPicker";
 import { EpisodeNav } from "@/components/EpisodeNav";

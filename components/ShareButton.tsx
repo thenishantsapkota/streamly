@@ -1,4 +1,3 @@
-"use client";
 
 import { toast } from "./Toast";
 import { ExportIcon } from "@phosphor-icons/react";

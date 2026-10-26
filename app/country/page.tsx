@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { COUNTRIES } from "@/lib/countries";
 import { PageHeader } from "@/components/PageHeader";

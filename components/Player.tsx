@@ -1,7 +1,6 @@
-"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { getWatched, upsertWatched, type WatchedItem } from "@/lib/storage";
 import { CastOnPause, type CastEntry } from "./CastOnPause";
 import { AdBlockerHint } from "./AdBlockerHint";

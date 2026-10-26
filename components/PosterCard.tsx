@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/Image";
+import { Link } from "@/lib/router-compat";
 import { ArrowRightIcon, StarIcon } from "@phosphor-icons/react/dist/ssr";
 import { TiltCard } from "./motion";
 import { BLUR_DATA_URL } from "@/lib/image";

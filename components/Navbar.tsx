@@ -1,7 +1,6 @@
-"use client";
 
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { Link } from "@/lib/router-compat";
+import { usePathname, useSearchParams } from "@/lib/router-compat";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import {

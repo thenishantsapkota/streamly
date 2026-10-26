@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";

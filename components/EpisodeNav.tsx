@@ -1,6 +1,5 @@
-"use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import type { Season } from "@/lib/tmdb";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 

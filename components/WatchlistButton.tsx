@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useState } from "react";
 import { isInWatchlist, toggleWatchlist, type WatchlistItem } from "@/lib/watchlist";

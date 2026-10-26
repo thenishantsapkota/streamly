@@ -8,3 +8,7 @@ out
 tsconfig.tsbuildinfo
 pnpm-lock.yaml
 graphify-out
+.output
+.nitro
+.tanstack
+.vercel

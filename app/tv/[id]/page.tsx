@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/Image";
+import { Link } from "@/lib/router-compat";
 import { Row } from "@/components/Row";
 import { SeasonPicker } from "@/components/SeasonPicker";
 import { WatchlistButton } from "@/components/WatchlistButton";

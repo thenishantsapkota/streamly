@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/Image";
+import { Link } from "@/lib/router-compat";
 import { anilistApi, animeIsMovie, animeTitle, getEpisodeCount } from "@/lib/anilist";
 import { AnimeEpisodeList } from "@/components/AnimeEpisodeList";
 import { ParallaxBackdrop, Reveal, SplitTitle, TiltCard } from "@/components/motion";

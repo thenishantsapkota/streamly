@@ -1,6 +1,5 @@
-"use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
 import { getRecentlyWatched, removeWatched, type WatchedItem } from "@/lib/storage";
 import { DraggableScroll } from "./DraggableScroll";

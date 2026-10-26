@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { getRecentlyWatched, removeWatched, clearWatched, type WatchedItem } from "@/lib/storage";

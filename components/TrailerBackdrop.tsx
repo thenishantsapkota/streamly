@@ -1,6 +1,5 @@
-"use client";
 
-import Image from "next/image";
+import Image from "@/components/Image";
 import { useEffect, useRef, useState } from "react";
 import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/Image";
 import { backdropUrl, posterUrl, type Genre } from "@/lib/tmdb";
 import { BLUR_DATA_URL, BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 import { ParallaxBackdrop, Reveal, SplitTitle, TiltCard } from "./motion";

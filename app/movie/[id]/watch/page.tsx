@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { Player } from "@/components/Player";
 import { Row } from "@/components/Row";
 import type { CastEntry } from "@/components/CastOnPause";

@@ -1,6 +1,5 @@
-"use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 type Props = {

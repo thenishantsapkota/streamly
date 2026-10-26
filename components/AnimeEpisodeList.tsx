@@ -1,6 +1,5 @@
-"use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
 import type { StreamingEpisode } from "@/lib/anilist";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";

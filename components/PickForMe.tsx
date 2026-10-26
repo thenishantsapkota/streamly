@@ -1,7 +1,6 @@
-"use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/Image";
+import { Link } from "@/lib/router-compat";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowsClockwiseIcon, PlayIcon, ShuffleIcon, StarIcon } from "@phosphor-icons/react";

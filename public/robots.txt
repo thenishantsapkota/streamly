@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /search
+
+Host: https://streamly.snishant.com.np
+Sitemap: https://streamly.snishant.com.np/sitemap.xml

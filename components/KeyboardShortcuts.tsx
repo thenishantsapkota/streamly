@@ -1,7 +1,6 @@
-"use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 
 export function KeyboardShortcuts() {
   const router = useRouter();

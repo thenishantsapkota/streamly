@@ -1,7 +1,6 @@
-"use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/lib/router-compat";
+import { usePathname } from "@/lib/router-compat";
 import { motion, useReducedMotion } from "motion/react";
 import { EASE_CINEMA } from "./motion";
 
