@@ -11,6 +11,8 @@ export type Provider = {
   color: string;
   /** Short tagline */
   tagline: string;
+  /** TMDB logo path (render via `${IMG}/w92${logo}`) */
+  logo: string;
 };
 
 /**
@@ -26,6 +28,7 @@ export const PROVIDERS: Provider[] = [
     region: "US",
     color: "#e50914",
     tagline: "Originals you can only watch on Netflix.",
+    logo: "/rK1KljqmbvO9HQa1PBFLILWah72.png",
   },
   {
     id: 337,
@@ -34,6 +37,7 @@ export const PROVIDERS: Provider[] = [
     region: "US",
     color: "#0e6efd",
     tagline: "Marvel, Star Wars and Pixar.",
+    logo: "/5eZ872CghnHFLB1j8grszbrx0dx.png",
   },
   {
     id: 9,
@@ -42,6 +46,7 @@ export const PROVIDERS: Provider[] = [
     region: "US",
     color: "#00a8e1",
     tagline: "Prime exclusives across film and TV.",
+    logo: "/gMZdpavHmxFNnLpMHwVxfqeux2g.png",
   },
   {
     id: 1899,
@@ -50,14 +55,16 @@ export const PROVIDERS: Provider[] = [
     region: "US",
     color: "#a855f7",
     tagline: "HBO + Max originals.",
+    logo: "/skypuy7SXuugIQeYg0IglmzoKaS.png",
   },
   {
-    id: 122,
-    name: "Hotstar",
+    id: 2336,
+    name: "JioHotstar",
     slug: "hotstar",
     region: "IN",
     color: "#1f80e0",
-    tagline: "Disney+ Hotstar India exclusives.",
+    tagline: "JioHotstar exclusives from India.",
+    logo: "/ledoS6EgdjTNq8F1e6wubUQer18.png",
   },
   {
     id: 350,
@@ -66,18 +73,18 @@ export const PROVIDERS: Provider[] = [
     region: "US",
     color: "#ffffff",
     tagline: "Apple originals.",
+    logo: "/9icYBfYFcwgCbky5VdGUIKJ4C5i.png",
   },
   {
-    id: 531,
+    id: 2303,
     name: "Paramount+",
     slug: "paramount-plus",
     region: "US",
     color: "#0058ff",
     tagline: "Star Trek, Yellowstone & more.",
+    logo: "/4N4BMd0Mm0kHAmF7RZgL5lW3cwc.png",
   },
 ];
 
-/** Providers featured on the home page (kept short to limit network/render). */
-export const HOME_PROVIDERS = PROVIDERS.filter((p) =>
-  ["netflix", "disney-plus", "prime-video", "hotstar"].includes(p.slug),
-);
+/** Providers offered in the home page switcher (one row renders at a time). */
+export const HOME_PROVIDERS = PROVIDERS;

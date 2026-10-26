@@ -1,3 +1,4 @@
+import { IMG } from "@/lib/tmdb";
 import { ProviderRow } from "@/components/ProviderRow";
 import { PageHeader } from "@/components/PageHeader";
 import { PROVIDERS } from "@/lib/providers";
@@ -33,7 +34,7 @@ export default function ExclusivesPage() {
                   href={`#${p.slug}`}
                   className="group flex items-center gap-2 px-4 py-2.5 text-sm text-text-dim transition-colors hover:bg-white hover:text-bg"
                 >
-                  <span aria-hidden className="size-2 shrink-0" style={{ backgroundColor: p.color }} />
+                  <img src={`${IMG}/w92${p.logo}`} alt="" width={20} height={20} loading="lazy" className="size-5 shrink-0" />
                   {p.name}
                 </a>
               </li>

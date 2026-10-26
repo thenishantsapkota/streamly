@@ -1,6 +1,5 @@
 import { HomeContent } from "@/components/HomeContent";
-import { ProviderRow } from "@/components/ProviderRow";
-import { RowHeader } from "@/components/RowHeader";
+import { ProviderTabs } from "@/components/ProviderTabs";
 import { tmdbApi } from "@/lib/tmdb";
 import { anilistApi } from "@/lib/anilist";
 import { HOME_PROVIDERS } from "@/lib/providers";
@@ -23,16 +22,13 @@ export default async function HomePage() {
       tmdbApi.discoverByCountry("tv", "IN"),
     ]);
 
-  const providerRows = (
-    <>
-      <div className="mt-14">
-        <RowHeader title="Streaming exclusives" href="/exclusives" />
-      </div>
-      {HOME_PROVIDERS.map((p) => (
-        <ProviderRow key={p.slug} provider={p} variant="condensed" />
-      ))}
-    </>
+  const providerEntries = await Promise.all(
+    HOME_PROVIDERS.map(async (provider) => ({
+      provider,
+      items: (await tmdbApi.discoverByProvider("movie", provider.id, provider.region).catch(() => ({ results: [] }))).results,
+    })),
   );
+  const providerRows = <ProviderTabs entries={providerEntries} />;
 
   return (
     <HomeContent

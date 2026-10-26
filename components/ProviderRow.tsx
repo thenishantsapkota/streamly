@@ -1,6 +1,6 @@
 import { Row } from "./Row";
 import { Reveal } from "./motion";
-import { tmdbApi } from "@/lib/tmdb";
+import { IMG, tmdbApi } from "@/lib/tmdb";
 import type { Provider } from "@/lib/providers";
 
 type Props = {
@@ -42,7 +42,7 @@ export async function ProviderRow({ provider, variant = "condensed" }: Props) {
       <Reveal className="px-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t border-border pt-6">
           <div className="flex items-center gap-4">
-            <span aria-hidden className="size-3 shrink-0" style={{ backgroundColor: provider.color }} />
+            <img src={`${IMG}/w92${provider.logo}`} alt="" width={48} height={48} loading="lazy" className="size-10 shrink-0 ring-1 ring-white/10 sm:size-12" />
             <h2 className="text-3xl font-semibold tracking-tighter sm:text-5xl">{provider.name}</h2>
           </div>
           <p className="max-w-sm text-sm text-text-dim">{provider.tagline}</p>
