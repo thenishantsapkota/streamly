@@ -57,6 +57,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      // Billboard trailers: warm up YouTube before the iframe mounts.
+      { rel: "preconnect", href: "https://www.youtube-nocookie.com" },
+      { rel: "preconnect", href: "https://i.ytimg.com" },
+      { rel: "preconnect", href: "https://image.tmdb.org" },
       { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
       { rel: "apple-touch-icon", href: "/apple-icon.png", sizes: "180x180" },

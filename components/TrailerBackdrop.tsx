@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
 
 const YT_ORIGIN = "https://www.youtube-nocookie.com";
-const REVEAL_AFTER_MS = 3500;
+const REVEAL_AFTER_MS = 600;
 
 /**
  * Billboard background: the backdrop still, with the muted YouTube trailer
@@ -44,6 +44,7 @@ export function TrailerBackdrop({
       }
       const info = data?.info;
       if (!info) return;
+      heardRef.current = true;
       if (typeof info.playerState === "number") setPlaying(info.playerState === 1);
       if (typeof info.currentTime === "number" && typeof info.duration === "number" && info.duration > 0) {
         setNearEnd(info.duration - info.currentTime < 2.5);
@@ -53,8 +54,8 @@ export function TrailerBackdrop({
     return () => window.removeEventListener("message", onMessage);
   }, [trailerKey]);
 
-  // YouTube overlays its title bar and channel badge for the first few
-  // seconds of playback; only reveal once it has been playing past that.
+  // Brief settle after playback starts so the first frames (and any title
+  // flash, mostly cropped away by the 1.5x scale) are skipped.
   useEffect(() => {
     if (!playing) {
       setSettled(false);
@@ -64,10 +65,28 @@ export function TrailerBackdrop({
     return () => clearTimeout(t);
   }, [playing]);
 
-  // Subscribe to player events (the YouTube iframe API handshake).
-  function onLoad() {
-    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: trailerKey }), YT_ORIGIN);
-  }
+  // Subscribe to player events (the YouTube iframe API handshake). The
+  // player ignores "listening" until its own script has booted, so repeat it
+  // every 250ms until the first event arrives, like the official API does.
+  const heardRef = useRef(false);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (!loaded || !trailerKey) return;
+    const ping = () =>
+      iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: trailerKey }), YT_ORIGIN);
+    ping();
+    const interval = setInterval(() => {
+      if (heardRef.current) clearInterval(interval);
+      else ping();
+    }, 250);
+    // A player that never answers (embedding disabled, region-blocked) never
+    // reports "playing", so the still backdrop simply stays.
+    const stop = setTimeout(() => clearInterval(interval), 15_000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, [loaded, trailerKey]);
 
   const showVideo = playing && settled && !nearEnd;
 
@@ -88,13 +107,13 @@ export function TrailerBackdrop({
       {trailerKey && mounted && (
         <iframe
           ref={iframeRef}
-          onLoad={onLoad}
+          onLoad={() => setLoaded(true)}
           src={`${YT_ORIGIN}/embed/${trailerKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerKey}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1`}
           title={`${title} trailer`}
           allow="autoplay; encrypted-media"
           tabIndex={-1}
           aria-hidden
-          className={`pointer-events-none absolute left-1/2 top-1/2 h-[max(56.25cqw,100cqh)] w-[max(100cqw,177.78cqh)] -translate-x-1/2 -translate-y-1/2 scale-[1.5] border-0 transition-opacity duration-1000 ${
+          className={`pointer-events-none absolute left-1/2 top-1/2 h-[max(56.25cqw,100cqh)] w-[max(100cqw,177.78cqh)] -translate-x-1/2 -translate-y-1/2 scale-[1.5] border-0 transition-opacity duration-700 ${
             showVideo ? "opacity-100" : "opacity-0"
           }`}
         />
