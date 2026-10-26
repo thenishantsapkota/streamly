@@ -7,7 +7,9 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PlayIcon, StarIcon } from "@phosphor-icons/react";
 import { stillUrl, type Episode, type Season } from "@/lib/tmdb";
 import { BLUR_DATA_URL_LANDSCAPE } from "@/lib/image";
-import { EASE_CINEMA, Reveal, StaggerItem } from "./motion";
+import { EASE_CINEMA } from "./motion";
+import { RowHeader } from "./RowHeader";
+import { DraggableScroll } from "./DraggableScroll";
 
 type Props = {
   tvId: number;
@@ -45,6 +47,7 @@ export function SeasonPicker({
   const [season, setSeason] = useState(initialSeason);
   const [eps, setEps] = useState<Episode[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [focus, setFocus] = useState<number | undefined>(undefined);
   const reduce = useReducedMotion();
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -122,24 +125,26 @@ export function SeasonPicker({
     };
   }, [malId, eps, malEpisodeOffset]);
 
-  return (
-    <section className="mt-14">
-      <Reveal y={16} className="mb-4 flex items-end gap-4 px-4 sm:px-6">
-        <h2 className="shrink-0 text-xl font-semibold tracking-tight sm:text-2xl">Episodes</h2>
-        <span aria-hidden className="mb-2 h-px flex-1 bg-border" />
-        {eps && !loading && (
-          <span className="mb-0.5 shrink-0 tabular-nums text-sm text-text-dim">
-            {eps.length} episode{eps.length === 1 ? "" : "s"}
-          </span>
-        )}
-      </Reveal>
+  const list = eps ?? [];
+  const activeEp = season === initialSeason ? initialEpisode : undefined;
+  const fallbackFocus = list.find((e) => e.episode_number === activeEp)?.episode_number ?? list[0]?.episode_number;
+  const focusNum = focus ?? fallbackFocus;
+  const focused = list.find((e) => e.episode_number === focusNum);
+  const hrefFor = (n: number) => `/tv/${tvId}/watch?s=${season}&e=${n}`;
+  const pick = (n: number) => onPick?.(season, n);
+  const flagFor = (n: number) => fillerByAbs[malEpisodeOffset + n];
 
+  return (
+    <section className="mt-16">
+      <RowHeader title="Episodes" />
+
+      {/* Season selector: big numerals */}
       {validSeasons.length > 1 && (
         <div
           ref={tabsRef}
           role="tablist"
           aria-label="Season"
-          className="no-scrollbar relative flex gap-1 overflow-x-auto border-b border-border px-4 sm:px-6"
+          className="no-scrollbar flex gap-6 overflow-x-auto px-4 pb-2 sm:gap-8 sm:px-6"
         >
           {validSeasons.map((s) => {
             const active = s.season_number === season;
@@ -149,161 +154,217 @@ export function SeasonPicker({
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setSeason(s.season_number)}
-                className={`relative shrink-0 whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors duration-300 ${
-                  active ? "text-text" : "text-text-dim hover:text-text"
-                }`}
+                onClick={() => {
+                  setSeason(s.season_number);
+                  setFocus(undefined);
+                }}
+                className="group shrink-0 text-left"
               >
-                {s.name}
-                {active && (
-                  <motion.span
-                    layoutId={`season-tab-${tvId}`}
-                    aria-hidden
-                    className="absolute inset-x-0 -bottom-px h-0.5 bg-brand"
-                    transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
-                  />
-                )}
+                <span
+                  className={`block font-display text-5xl font-extrabold leading-none tracking-tighter transition-colors duration-300 sm:text-6xl ${
+                    active ? "text-brand" : "text-white/15 group-hover:text-white/45"
+                  }`}
+                >
+                  {s.season_number}
+                </span>
+                <span
+                  className={`mt-1 block whitespace-nowrap text-xs transition-colors ${
+                    active ? "text-white" : "text-text-dim group-hover:text-white/80"
+                  }`}
+                >
+                  {s.name}
+                </span>
+                <span className="mt-0.5 block text-xs tabular-nums text-text-dim">
+                  {s.episode_count} episode{s.episode_count === 1 ? "" : "s"}
+                </span>
               </button>
             );
           })}
         </div>
       )}
 
-      {malId && (
-        <p className="mt-4 flex items-center gap-2 px-4 text-xs text-text-dim sm:px-6">
-          <span className="inline-flex size-4 items-center justify-center bg-brand/15 tabular-nums text-[10px] font-semibold text-brand">
-            F
-          </span>
-          marks filler episodes (data from MyAnimeList).
-        </p>
-      )}
+      {/* Spotlight */}
+      <div className="mt-8 px-4 sm:px-6">
+        {loading || !focused ? (
+          <div className="grid gap-6 lg:grid-cols-12">
+            <div className="aspect-video shimmer lg:col-span-7" />
+            <div className="space-y-3 lg:col-span-5">
+              <div className="h-24 w-32 shimmer" />
+              <div className="h-7 w-2/3 shimmer" />
+              <div className="h-4 w-full shimmer" />
+              <div className="h-4 w-5/6 shimmer" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid items-center gap-6 lg:grid-cols-12 lg:gap-10">
+            <div className="relative aspect-video overflow-hidden bg-surface-2 shadow-[0_40px_80px_-24px_rgb(0_0_0/0.9)] lg:col-span-7">
+              <AnimatePresence initial={false} mode="popLayout">
+                <motion.div
+                  key={`${season}-${focused.episode_number}`}
+                  className="absolute inset-0"
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.06 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: EASE_CINEMA }}
+                >
+                  {focused.still_path ? (
+                    <Image
+                      src={stillUrl(focused.still_path, "w780")!}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 60vw"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL_LANDSCAPE}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-text-dim">No still</div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg/60 via-transparent to-transparent" />
+              {focused.episode_number === activeEp && (
+                <span className="absolute left-3 top-3 bg-brand px-2 py-1 text-[11px] font-semibold text-on-brand">
+                  Now playing
+                </span>
+              )}
+            </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={`${season}-${loading ? "loading" : "ready"}`}
-          initial={reduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25, ease: EASE_CINEMA }}
-          className="mt-5 grid grid-cols-1 gap-x-5 gap-y-7 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-3"
-        >
-          {loading &&
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i}>
-                <div className="aspect-video shimmer" />
-                <div className="mt-3 h-4 w-2/3 shimmer" />
-                <div className="mt-2 h-3 w-full shimmer" />
-              </div>
-            ))}
-          {!loading &&
-            eps?.map((ep, i) => {
-              const active = season === initialSeason && initialEpisode === ep.episode_number;
-              const absEp = malEpisodeOffset + ep.episode_number;
-              const meta = fillerByAbs[absEp];
-              const still = stillUrl(ep.still_path, "w300");
-              const inner = (
-                <div className="group">
-                  <div
-                    className={`relative aspect-video overflow-hidden bg-surface-2 transition-shadow duration-500 ${
-                      active
-                        ? "shadow-[0_0_0_2px_var(--color-brand)]"
-                        : "shadow-[0_0_0_1px_var(--color-border)] group-hover:shadow-[0_0_0_1px_var(--color-brand)]"
-                    }`}
-                  >
-                    {still ? (
-                      <Image
-                        src={still}
-                        alt=""
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        placeholder="blur"
-                        blurDataURL={BLUR_DATA_URL_LANDSCAPE}
-                        className="object-cover transition duration-700 ease-cinema group-hover:scale-105 group-hover:brightness-50"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center font-display text-4xl font-semibold text-border">
-                        {ep.episode_number}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-linear-to-t from-bg/80 via-transparent to-transparent" />
-                    <span
-                      className={`absolute bottom-2 left-3 font-display text-3xl font-semibold leading-none tabular-nums ${
-                        active ? "text-brand" : "text-white"
-                      }`}
-                    >
-                      {String(ep.episode_number).padStart(2, "0")}
+            <div className="lg:col-span-5">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={`${season}-${focused.episode_number}`}
+                  initial={reduce ? false : { opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -12 }}
+                  transition={{ duration: 0.4, ease: EASE_CINEMA }}
+                >
+                  <div className="flex items-end gap-4">
+                    <span className="numeral-outline font-display text-7xl font-extrabold leading-[0.85] tracking-tighter sm:text-8xl">
+                      {focused.episode_number}
                     </span>
-                    {active ? (
-                      <span className="absolute right-2 top-2 bg-brand px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-brand">
-                        Now playing
-                      </span>
-                    ) : (
-                      <span className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-500 ease-cinema group-hover:opacity-100">
-                        <span className="inline-flex size-11 scale-75 items-center justify-center bg-brand text-on-brand transition-transform duration-500 ease-cinema group-hover:scale-100">
-                          <PlayIcon className="size-4" weight="fill" aria-hidden />
-                        </span>
-                      </span>
-                    )}
-                    {meta?.filler && (
-                      <span className="absolute left-2 top-2 bg-brand/90 px-1.5 py-0.5 tabular-nums text-[10px] font-semibold text-on-brand">
-                        F
-                      </span>
-                    )}
-                    {meta?.recap && !meta?.filler && (
-                      <span className="absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 tabular-nums text-[10px] font-semibold text-text ring-1 ring-inset ring-white/25">
-                        R
-                      </span>
-                    )}
+                    <div className="pb-1 text-xs text-text-dim">
+                      <div>Season {season}</div>
+                      <div className="tabular-nums">of {list.length} episodes</div>
+                    </div>
                   </div>
-                  <h3
-                    className={`mt-3 line-clamp-1 text-sm font-semibold transition-colors ${
-                      active ? "text-brand" : "group-hover:text-brand"
-                    }`}
-                  >
-                    {ep.name}
-                  </h3>
-                  <div className="mt-1 flex items-center gap-3 tabular-nums text-[11px] uppercase text-text-dim">
-                    {ep.runtime ? <span>{ep.runtime}m</span> : null}
-                    {ep.air_date ? <span>{ep.air_date}</span> : null}
-                    {ep.vote_average ? (
+                  <h3 className="mt-5 text-2xl font-semibold tracking-tight sm:text-3xl">{focused.name}</h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm tabular-nums text-text-dim">
+                    {focused.runtime ? <span>{focused.runtime} min</span> : null}
+                    {focused.air_date ? <span>{focused.air_date}</span> : null}
+                    {focused.vote_average ? (
                       <span className="inline-flex items-center gap-1 text-brand">
-                        <StarIcon className="size-3" weight="fill" aria-hidden />
-                        {ep.vote_average.toFixed(1)}
+                        <StarIcon className="size-3.5" weight="fill" aria-hidden />
+                        {focused.vote_average.toFixed(1)}
                       </span>
                     ) : null}
+                    {flagFor(focused.episode_number)?.filler && <span className="text-brand">Filler</span>}
+                    {flagFor(focused.episode_number)?.recap && <span>Recap</span>}
                   </div>
-                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-text-dim">
-                    {ep.overview || "No description."}
+                  <p className="mt-4 line-clamp-4 max-w-prose text-sm leading-relaxed text-white/75 sm:text-base">
+                    {focused.overview || "No description yet."}
                   </p>
+                  <div className="mt-6">
+                    {asLinks ? (
+                      <Link
+                        href={hrefFor(focused.episode_number)}
+                        className="group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                      >
+                        <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
+                        Play episode {focused.episode_number}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => pick(focused.episode_number)}
+                        className="group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                      >
+                        <PlayIcon className="size-4" weight="fill" aria-hidden />
+                        Play episode {focused.episode_number}
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Film strip */}
+      <div className="mt-10 bg-surface py-3">
+        <div aria-hidden className="mx-2 h-2.5 bg-[repeating-linear-gradient(90deg,var(--color-bg)_0_10px,transparent_10px_22px)]" />
+        <DraggableScroll className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3 sm:px-6">
+          {loading &&
+            Array.from({ length: 6 }).map((_, i) => <div key={i} className="aspect-video w-56 shrink-0 shimmer sm:w-64" />)}
+          {!loading &&
+            list.map((ep, i) => {
+              const isFocus = ep.episode_number === focusNum;
+              const isActive = ep.episode_number === activeEp;
+              const still = stillUrl(ep.still_path, "w300");
+              const flag = flagFor(ep.episode_number);
+              const frame = (
+                <div
+                  className={`relative aspect-video w-56 overflow-hidden bg-surface-2 transition duration-500 ease-cinema sm:w-64 ${
+                    isFocus ? "-translate-y-1 shadow-[0_0_0_2px_var(--color-brand)]" : "opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  {still && (
+                    <Image
+                      src={still}
+                      alt=""
+                      fill
+                      sizes="256px"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL_LANDSCAPE}
+                      className={`object-cover transition duration-700 ease-cinema ${isFocus ? "scale-105" : "grayscale-[40%]"}`}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end gap-2 p-2.5">
+                    <span className={`font-display text-2xl font-bold leading-none ${isFocus ? "text-brand" : "text-white"}`}>
+                      {ep.episode_number}
+                    </span>
+                    <span className="line-clamp-1 pb-0.5 text-xs text-white/85">{ep.name}</span>
+                  </div>
+                  {isActive && <span className="absolute right-2 top-2 size-2 bg-brand" aria-label="Now playing" />}
+                  {flag?.filler && (
+                    <span className="absolute left-2 top-2 bg-brand px-1.5 py-0.5 text-[10px] font-semibold text-on-brand">F</span>
+                  )}
+                  {flag?.recap && !flag?.filler && (
+                    <span className="absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ring-white/25">R</span>
+                  )}
                 </div>
               );
               return (
-                <StaggerItem key={ep.id} index={i}>
+                <motion.div
+                  key={ep.id}
+                  className="shrink-0"
+                  initial={reduce ? false : { opacity: 0, x: 40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: Math.min(i, 8) * 0.04, ease: EASE_CINEMA }}
+                  onMouseEnter={() => setFocus(ep.episode_number)}
+                  onFocus={() => setFocus(ep.episode_number)}
+                >
                   {asLinks ? (
-                    <Link
-                      href={`/tv/${tvId}/watch?s=${season}&e=${ep.episode_number}`}
-                      aria-current={active ? "true" : undefined}
-                      className="block"
-                    >
-                      {inner}
+                    <Link href={hrefFor(ep.episode_number)} aria-current={isActive ? "true" : undefined} aria-label={`Episode ${ep.episode_number}: ${ep.name}`} className="block">
+                      {frame}
                     </Link>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => onPick?.(season, ep.episode_number)}
-                      className="block w-full text-left"
-                    >
-                      {inner}
+                    <button type="button" onClick={() => pick(ep.episode_number)} aria-label={`Episode ${ep.episode_number}: ${ep.name}`} className="block">
+                      {frame}
                     </button>
                   )}
-                </StaggerItem>
+                </motion.div>
               );
             })}
           {!loading && eps && eps.length === 0 && (
-            <p className="col-span-full text-sm text-text-dim">No episodes for this season.</p>
+            <p className="py-8 text-sm text-text-dim">No episodes for this season.</p>
           )}
-        </motion.div>
-      </AnimatePresence>
+        </DraggableScroll>
+        <div aria-hidden className="mx-2 h-2.5 bg-[repeating-linear-gradient(90deg,var(--color-bg)_0_10px,transparent_10px_22px)]" />
+      </div>
     </section>
   );
 }
