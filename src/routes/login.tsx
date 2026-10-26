@@ -107,7 +107,7 @@ function LoginPage() {
 
             <button
               type="submit"
-              className="group flex w-full items-center justify-between bg-brand px-5 py-3.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+              className="rounded-btn group flex w-full items-center justify-between bg-brand px-5 py-3.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
             >
               Sign in
               <ArrowRightIcon className="size-4 transition-transform duration-300 group-hover:translate-x-1" weight="bold" aria-hidden />

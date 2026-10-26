@@ -40,7 +40,7 @@ export function TrailerMuteButton({ trailerKey }: { trailerKey: string }) {
       onClick={toggle}
       aria-label={muted ? "Unmute trailer" : "Mute trailer"}
       aria-pressed={!muted}
-      className="relative inline-flex size-11 items-center justify-center bg-black/40 text-white ring-1 ring-inset ring-white/25 backdrop-blur-sm transition duration-300 hover:bg-white hover:text-bg active:scale-[0.98]"
+      className="relative inline-flex size-11 items-center justify-center rounded-btn bg-black/40 text-white ring-1 ring-inset ring-white/25 backdrop-blur-sm transition duration-300 hover:bg-white hover:text-bg active:scale-[0.98]"
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span

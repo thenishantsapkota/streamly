@@ -34,7 +34,7 @@ export function NotFoundPage() {
           <NotFoundSearchButton />
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+            className="rounded-btn inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
           >
             <HouseIcon className="size-4" weight="bold" aria-hidden />
             Home

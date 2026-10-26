@@ -73,7 +73,7 @@ function CountryPage() {
             <p className="mt-4 max-w-sm text-sm text-text-dim">Nothing from {country.name} is listed right now.</p>
             <Link
               href="/country"
-              className="mt-6 inline-flex items-center px-5 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+              className="rounded-btn mt-6 inline-flex items-center px-5 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
             >
               Pick another country
             </Link>

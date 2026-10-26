@@ -6,7 +6,7 @@ export function NotFoundSearchButton() {
     <button
       type="button"
       onClick={() => window.dispatchEvent(new Event("open-search"))}
-      className="inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+      className="rounded-btn inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
     >
       <MagnifyingGlassIcon className="size-4" weight="bold" aria-hidden />
       Search titles

@@ -207,7 +207,7 @@ export function AnimeEpisodeList({
                           {String(n).padStart(2, "0")}
                         </span>
                         {active ? (
-                          <span className="absolute right-2 top-2 bg-brand px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-brand">
+                          <span className="rounded-btn absolute right-2 top-2 bg-brand px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-brand">
                             Now playing
                           </span>
                         ) : (
@@ -223,7 +223,7 @@ export function AnimeEpisodeList({
                           </span>
                         )}
                         {meta?.recap && !meta?.filler && (
-                          <span className="absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text ring-1 ring-inset ring-white/25">
+                          <span className="rounded-btn absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text ring-1 ring-inset ring-white/25">
                             Recap
                           </span>
                         )}
@@ -291,7 +291,7 @@ export function AnimeEpisodeList({
           <button
             type="button"
             onClick={() => setExtraPages((x) => x + 1)}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-text ring-1 ring-inset ring-white/25 transition duration-300 hover:bg-white hover:text-bg active:scale-[0.98]"
+            className="rounded-btn group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-text ring-1 ring-inset ring-white/25 transition duration-300 hover:bg-white hover:text-bg active:scale-[0.98]"
           >
             <PlusIcon className="size-4 transition-transform duration-300 group-hover:rotate-90" weight="bold" aria-hidden />
             Show {FALLBACK_BLOCKS} more

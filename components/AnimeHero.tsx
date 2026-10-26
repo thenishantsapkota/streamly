@@ -175,7 +175,7 @@ export function AnimeHero({ items }: { items: Anime[] }) {
                   type="button"
                   aria-label="Previous slide"
                   onClick={() => goTo(index - 1)}
-                  className="grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
+                  className="rounded-btn grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
                 >
                   <CaretLeftIcon className="size-4" weight="bold" aria-hidden />
                 </button>
@@ -183,7 +183,7 @@ export function AnimeHero({ items }: { items: Anime[] }) {
                   type="button"
                   aria-label="Next slide"
                   onClick={() => goTo(index + 1)}
-                  className="grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
+                  className="rounded-btn grid size-10 place-items-center bg-bg/80 text-white ring-1 ring-border backdrop-blur transition hover:bg-brand hover:text-on-brand hover:ring-brand active:scale-95"
                 >
                   <CaretRightIcon className="size-4" weight="bold" aria-hidden />
                 </button>
@@ -253,14 +253,14 @@ export function AnimeHero({ items }: { items: Anime[] }) {
               >
                 <Link
                   href={playHref}
-                  className="group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                  className="rounded-btn group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
                 >
                   <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
                   {isMovie ? "Play movie" : "Play episode 1"}
                 </Link>
                 <Link
                   href={`/anime/${a.id}`}
-                  className="inline-flex items-center px-6 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+                  className="rounded-btn inline-flex items-center px-6 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
                 >
                   Details
                 </Link>

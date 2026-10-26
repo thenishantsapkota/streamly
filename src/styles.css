@@ -8,8 +8,8 @@
 
 /*
  * Cinema editorial system.
- * Near-black neutrals, one amber accent, 2px corners everywhere except
- * avatars (circles). Bricolage Grotesque for display, Hanken Grotesk for text.
+ * Near-black neutrals, one amber accent, 2px corners on panels and posters,
+ * 10px on buttons (rounded-btn), circles for avatars and floating chrome. Bricolage Grotesque for display, Hanken Grotesk for text.
  */
 @theme {
   --color-bg: #0a0a0a;
@@ -32,6 +32,8 @@
   --radius-xl: 2px;
   --radius-2xl: 2px;
   --radius-3xl: 2px;
+  /* Buttons are the one softened shape; panels and posters stay crisp. */
+  --radius-btn: 10px;
 
   --ease-cinema: cubic-bezier(0.16, 1, 0.3, 1);
 }

@@ -43,7 +43,7 @@ export function WatchlistButton({ item, className = "" }: Props) {
         if (nowSaved) setFlash((f) => f + 1);
         toast(nowSaved ? `Added "${item.title}" to My List` : `Removed from My List`);
       }}
-      className={`group relative inline-flex items-center gap-2 overflow-hidden px-5 py-3 text-sm font-medium ring-1 ring-inset transition duration-300 active:scale-[0.98] ${
+      className={`rounded-btn group relative inline-flex items-center gap-2 overflow-hidden px-5 py-3 text-sm font-medium ring-1 ring-inset transition duration-300 active:scale-[0.98] ${
         saved
           ? "text-brand ring-brand/70 hover:bg-white hover:text-bg hover:ring-white"
           : "text-text ring-white/25 hover:bg-white hover:text-bg hover:ring-white"

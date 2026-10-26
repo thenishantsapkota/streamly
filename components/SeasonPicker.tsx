@@ -223,7 +223,7 @@ export function SeasonPicker({
               </AnimatePresence>
               <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg/60 via-transparent to-transparent" />
               {focused.episode_number === activeEp && (
-                <span className="absolute left-3 top-3 bg-brand px-2 py-1 text-[11px] font-semibold text-on-brand">
+                <span className="rounded-btn absolute left-3 top-3 bg-brand px-2 py-1 text-[11px] font-semibold text-on-brand">
                   Now playing
                 </span>
               )}
@@ -267,7 +267,7 @@ export function SeasonPicker({
                     {asLinks ? (
                       <Link
                         href={hrefFor(focused.episode_number)}
-                        className="group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                        className="rounded-btn group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
                       >
                         <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
                         Play episode {focused.episode_number}
@@ -276,7 +276,7 @@ export function SeasonPicker({
                       <button
                         type="button"
                         onClick={() => pick(focused.episode_number)}
-                        className="group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                        className="rounded-btn group inline-flex items-center gap-2.5 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
                       >
                         <PlayIcon className="size-4" weight="fill" aria-hidden />
                         Play episode {focused.episode_number}
@@ -328,10 +328,10 @@ export function SeasonPicker({
                   </div>
                   {isActive && <span className="absolute right-2 top-2 size-2 bg-brand" aria-label="Now playing" />}
                   {flag?.filler && (
-                    <span className="absolute left-2 top-2 bg-brand px-1.5 py-0.5 text-[10px] font-semibold text-on-brand">F</span>
+                    <span className="rounded-btn absolute left-2 top-2 bg-brand px-1.5 py-0.5 text-[10px] font-semibold text-on-brand">F</span>
                   )}
                   {flag?.recap && !flag?.filler && (
-                    <span className="absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ring-white/25">R</span>
+                    <span className="rounded-btn absolute left-2 top-2 bg-bg/80 px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ring-white/25">R</span>
                   )}
                 </div>
               );

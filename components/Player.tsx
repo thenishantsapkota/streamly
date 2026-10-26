@@ -411,7 +411,7 @@ export function Player(props: Props) {
             <button
               type="button"
               onClick={() => switchSource(source === "vidsrc" ? "videasy" : "vidsrc")}
-              className="bg-brand px-4 py-2 text-xs font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+              className="rounded-btn bg-brand px-4 py-2 text-xs font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
             >
               Switch to {source === "vidsrc" ? "Videasy" : "VidSrc"}
             </button>
@@ -437,7 +437,7 @@ function AudioInfo({ isAnime }: { isAnime: boolean }) {
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 ring-1 ring-inset transition active:scale-[0.98] ${
+        className={`rounded-btn inline-flex items-center gap-1.5 px-3 py-1.5 ring-1 ring-inset transition active:scale-[0.98] ${
           open ? "bg-white text-bg ring-white" : "ring-white/25 hover:bg-white hover:text-bg"
         }`}
       >

@@ -33,7 +33,7 @@ export function ShareButton({ title, text, className = "" }: Props) {
       type="button"
       onClick={share}
       aria-label="Share"
-      className={`group inline-flex items-center gap-2 px-5 py-3 text-sm font-medium text-text ring-1 ring-inset ring-white/25 transition duration-300 hover:bg-white hover:text-bg hover:ring-white active:scale-[0.98] ${className}`}
+      className={`rounded-btn group inline-flex items-center gap-2 px-5 py-3 text-sm font-medium text-text ring-1 ring-inset ring-white/25 transition duration-300 hover:bg-white hover:text-bg hover:ring-white active:scale-[0.98] ${className}`}
     >
       <ExportIcon className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5" weight="bold" aria-hidden />
       Share

@@ -87,7 +87,7 @@ function MyListPage() {
             </p>
             <Link
               href="/"
-              className="group mt-6 inline-flex items-center gap-2 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+              className="rounded-btn group mt-6 inline-flex items-center gap-2 bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
             >
               Find something to watch
               <ArrowRightIcon className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" weight="bold" aria-hidden />
@@ -141,7 +141,7 @@ function MyListPage() {
                 <button
                   type="button"
                   onClick={() => setFilter("all")}
-                  className="mt-6 inline-flex items-center px-5 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+                  className="rounded-btn mt-6 inline-flex items-center px-5 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
                 >
                   Show everything
                 </button>

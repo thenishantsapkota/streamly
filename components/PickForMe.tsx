@@ -195,7 +195,7 @@ export function PickForMe({ items }: { items: MediaItem[] }) {
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
                   <Link
                     href={`/${type}/${pick.id}`}
-                    className="group inline-flex items-center gap-2.5 bg-brand px-7 py-3.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                    className="rounded-btn group inline-flex items-center gap-2.5 bg-brand px-7 py-3.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
                   >
                     <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
                     Watch now
@@ -203,7 +203,7 @@ export function PickForMe({ items }: { items: MediaItem[] }) {
                   <button
                     type="button"
                     onClick={spin}
-                    className="group inline-flex items-center gap-2 px-6 py-3.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
+                    className="rounded-btn group inline-flex items-center gap-2 px-6 py-3.5 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-bg active:scale-[0.98]"
                   >
                     <ArrowsClockwiseIcon className="size-4 transition-transform duration-500 group-hover:rotate-180" weight="bold" aria-hidden />
                     Spin again
@@ -221,7 +221,7 @@ export function PickForMe({ items }: { items: MediaItem[] }) {
                 exit={{ opacity: 0 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden bg-brand px-12 py-4 text-base font-semibold text-on-brand shadow-[0_18px_40px_-12px_rgb(240_162_59/0.55)] transition-colors hover:bg-brand-hover disabled:opacity-70"
+                className="rounded-btn group relative overflow-hidden bg-brand px-12 py-4 text-base font-semibold text-on-brand shadow-[0_18px_40px_-12px_rgb(240_162_59/0.55)] transition-colors hover:bg-brand-hover disabled:opacity-70"
               >
                 <span
                   aria-hidden

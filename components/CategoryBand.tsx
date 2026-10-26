@@ -30,7 +30,7 @@ export function CategoryBand({
           </div>
           <Link
             href={href}
-            className="group inline-flex shrink-0 items-center gap-2 self-start bg-brand px-5 py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98] sm:self-end"
+            className="rounded-btn group inline-flex shrink-0 items-center gap-2 self-start bg-brand px-5 py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98] sm:self-end"
           >
             {cta}
             <ArrowUpRightIcon

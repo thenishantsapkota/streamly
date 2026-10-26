@@ -138,7 +138,7 @@ function MoviePage() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link
                 href={`/movie/${numId}/watch`}
-                className="group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
+                className="rounded-btn group inline-flex items-center gap-2.5 bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-hover active:scale-[0.98]"
               >
                 <PlayIcon className="size-4 transition-transform duration-300 group-hover:scale-110" weight="fill" aria-hidden />
                 Watch now
