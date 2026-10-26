@@ -19,6 +19,9 @@ import { Logo } from "./Logo";
 import { SearchOverlay } from "./SearchOverlay";
 import { EASE_CINEMA } from "./motion";
 
+const HIDE_AFTER = 120;
+const SHOW_AFTER = 60;
+
 const SECTIONS: { href: string; label: string; icon: Icon }[] = [
   { href: "/", label: "Home", icon: HouseSimpleIcon },
   { href: "/movies", label: "Films", icon: FilmSlateIcon },
@@ -40,11 +43,22 @@ export function Navbar() {
   const [genresOpen, setGenresOpen] = useState(false);
   const dockRef = useRef<HTMLDivElement>(null);
 
+  // Hide after a sustained scroll down, show after a sustained scroll up.
+  // Accumulating distance (instead of reacting to every event) ignores
+  // trackpad jitter, momentum wobble and layout shifts from rows loading.
   const { scrollY } = useScroll();
+  const travel = useRef(0);
   useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    if (Math.abs(y - prev) < 4) return;
-    setHidden(y > 160 && y > prev && !genresOpen);
+    const delta = y - (scrollY.getPrevious() ?? y);
+    if (y < 120 || genresOpen) {
+      travel.current = 0;
+      setHidden(false);
+      return;
+    }
+    // Reset the tally whenever the direction flips.
+    travel.current = Math.sign(delta) === Math.sign(travel.current) ? travel.current + delta : delta;
+    if (travel.current > HIDE_AFTER) setHidden(true);
+    else if (travel.current < -SHOW_AFTER) setHidden(false);
   });
 
   useEffect(() => {
@@ -108,7 +122,7 @@ export function Navbar() {
         ref={dockRef}
         initial={{ y: 120, opacity: 0 }}
         animate={hidden ? { y: 120, opacity: 0 } : { y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 320, damping: 30, delay: hidden ? 0 : 0.05 }}
+        transition={{ duration: 0.35, ease: EASE_CINEMA }}
         className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-3 sm:bottom-6"
       >
         <div className="relative">
