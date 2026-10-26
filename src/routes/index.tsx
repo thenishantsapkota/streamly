@@ -8,6 +8,7 @@ import { PickForMe } from "@/components/PickForMe";
 import { ProviderTabs } from "@/components/ProviderTabs";
 import { CategoryBand } from "@/components/CategoryBand";
 import { AnimeQueryRow, QueryRow, RowSkeleton } from "@/components/QueryRow";
+import { HeroSkeleton, Top10Skeleton } from "@/components/PageSkeleton";
 import { apiQuery } from "@/lib/api";
 import { HOME_PROVIDERS } from "@/lib/providers";
 
@@ -77,29 +78,29 @@ const providerQuery = (p: (typeof HOME_PROVIDERS)[number]) =>
   apiQuery("tmdb", "discoverByProvider", "movie", p.id, p.region);
 
 export const Route = createFileRoute("/")({
-  loader: async ({ context: { queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     // Start everything now; only wait for what renders above the fold.
     for (const row of FILM_ROWS.slice(0, EAGER_FILM_ROWS)) void queryClient.prefetchQuery(row.query);
     for (const p of HOME_PROVIDERS) void queryClient.prefetchQuery(providerQuery(p));
-    await Promise.all([
-      queryClient.ensureQueryData(q.trendingWeek),
-      queryClient.ensureQueryData(q.trendingDay),
-    ]);
+    // Don't await: the shell (with skeletons) streams immediately and each
+    // section fills in as its query resolves.
+    void queryClient.prefetchQuery(q.trendingWeek);
+    void queryClient.prefetchQuery(q.trendingDay);
   },
   component: HomePage,
 });
 
 function HomePage() {
-  const { data: trending } = useSuspenseQuery(q.trendingWeek);
-  const { data: today } = useSuspenseQuery(q.trendingDay);
-  const heroItems = trending.results.filter((i) => i.backdrop_path && i.overview).slice(0, 10);
-
   return (
     <div className="-mt-16">
-      {heroItems.length > 0 && <Hero items={heroItems} />}
+      <Suspense fallback={<HeroSkeleton />}>
+        <HomeHero />
+      </Suspense>
       <div className="mx-auto max-w-7xl">
         <RecentlyWatched />
-        <Top10Row title="Top 10 today" items={today.results} />
+        <Suspense fallback={<Top10Skeleton />}>
+          <TodayTop10 />
+        </Suspense>
 
         <CategoryBand word="Films" line="New releases, every genre, hidden gems and the classics worth revisiting." href="/movies" cta="All films" />
         {FILM_ROWS.slice(0, EAGER_FILM_ROWS).map((r) => (
@@ -127,6 +128,17 @@ function HomePage() {
       </Suspense>
     </div>
   );
+}
+
+function HomeHero() {
+  const { data } = useSuspenseQuery(q.trendingWeek);
+  const items = data.results.filter((i) => i.backdrop_path && i.overview).slice(0, 10);
+  return items.length > 0 ? <Hero items={items} /> : null;
+}
+
+function TodayTop10() {
+  const { data } = useSuspenseQuery(q.trendingDay);
+  return <Top10Row title="Top 10 today" items={data.results} />;
 }
 
 function Providers() {

@@ -34,6 +34,10 @@ export function getRouter() {
     routeTree,
     context: { queryClient },
     defaultPreload: "intent",
+    // Show the route skeleton quickly on slow navigations, and hold it long
+    // enough not to flicker.
+    defaultPendingMs: 150,
+    defaultPendingMinMs: 300,
     // Let React Query own freshness; the router just triggers loads.
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
