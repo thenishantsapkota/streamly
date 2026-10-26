@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import { Link as RouterLink, useRouter as useTanstackRouter, useRouterState } from "@tanstack/react-router";
 
 /**
@@ -49,9 +49,10 @@ export function usePathname() {
   return useRouterState({ select: (s) => s.location.pathname });
 }
 
+/** Stable across renders until the query string actually changes (safe as an effect dependency). */
 export function useSearchParams() {
   const searchStr = useRouterState({ select: (s) => s.location.searchStr });
-  return new URLSearchParams(searchStr);
+  return useMemo(() => new URLSearchParams(searchStr), [searchStr]);
 }
 
 export function useRouter() {

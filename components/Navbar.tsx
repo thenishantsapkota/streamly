@@ -38,6 +38,7 @@ const SECTIONS: { href: string; label: string; icon: Icon }[] = [
 export function Navbar() {
   const pathname = usePathname();
   const params = useSearchParams();
+  const searchStr = params.toString();
   const [hidden, setHidden] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [genresOpen, setGenresOpen] = useState(false);
@@ -64,7 +65,7 @@ export function Navbar() {
   useEffect(() => {
     setGenresOpen(false);
     setHidden(false);
-  }, [pathname, params]);
+  }, [pathname, searchStr]);
 
   useEffect(() => {
     const onOpen = () => setSearchOpen(true);
