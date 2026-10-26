@@ -1,6 +1,6 @@
 /**
  * Tiny 4x6 dark shimmer placeholder encoded as base64 data URI.
- * Used as blurDataURL on next/image to show a skeleton while loading.
+ * Used as blurDataURL on <Image> to show a skeleton while loading.
  */
 export const BLUR_DATA_URL =
   "data:image/svg+xml;base64," +

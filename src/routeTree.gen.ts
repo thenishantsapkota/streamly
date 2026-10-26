@@ -10,21 +10,55 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExclusivesRouteImport } from './routes/exclusives'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MyListRouteImport } from './routes/my-list'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ApiAnilistRouteImport } from './routes/api/anilist'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as AnimeIndexRouteImport } from './routes/anime/index'
+import { Route as AnimePopularRouteImport } from './routes/anime/popular'
+import { Route as AnimeTopRatedRouteImport } from './routes/anime/top-rated'
+import { Route as AnimeTrendingRouteImport } from './routes/anime/trending'
 import { Route as ApiCharacterRouteImport } from './routes/api/character'
 import { Route as ApiLoginRouteImport } from './routes/api/login'
 import { Route as ApiLogoutRouteImport } from './routes/api/logout'
 import { Route as ApiPersonRouteImport } from './routes/api/person'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as ApiSeasonRouteImport } from './routes/api/season'
+import { Route as CountryIndexRouteImport } from './routes/country/index'
+import { Route as CountryCodeRouteImport } from './routes/country/$code'
+import { Route as GenreSlugRouteImport } from './routes/genre/$slug'
+import { Route as MoviesIndexRouteImport } from './routes/movies/index'
+import { Route as MoviesNowPlayingRouteImport } from './routes/movies/now-playing'
+import { Route as MoviesPopularRouteImport } from './routes/movies/popular'
+import { Route as MoviesTopRatedRouteImport } from './routes/movies/top-rated'
+import { Route as TvIndexRouteImport } from './routes/tv/index'
+import { Route as TvAiringTodayRouteImport } from './routes/tv/airing-today'
+import { Route as TvPopularRouteImport } from './routes/tv/popular'
+import { Route as TvTopRatedRouteImport } from './routes/tv/top-rated'
+import { Route as AnimeIdIndexRouteImport } from './routes/anime/$id/index'
+import { Route as AnimeIdWatchRouteImport } from './routes/anime/$id/watch'
 import { Route as ApiAnimeEpisodesRouteImport } from './routes/api/anime/episodes'
-import { Route as ApiTmdbSplatRouteImport } from './routes/api/tmdb/$'
+import { Route as MovieIdIndexRouteImport } from './routes/movie/$id/index'
+import { Route as MovieIdWatchRouteImport } from './routes/movie/$id/watch'
+import { Route as TvIdIndexRouteImport } from './routes/tv/$id/index'
+import { Route as TvIdWatchRouteImport } from './routes/tv/$id/watch'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExclusivesRoute = ExclusivesRouteImport.update({
+  id: '/exclusives',
+  path: '/exclusives',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -32,14 +66,44 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyListRoute = MyListRouteImport.update({
+  id: '/my-list',
+  path: '/my-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAnilistRoute = ApiAnilistRouteImport.update({
-  id: '/api/anilist',
-  path: '/api/anilist',
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeIndexRoute = AnimeIndexRouteImport.update({
+  id: '/anime/',
+  path: '/anime/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimePopularRoute = AnimePopularRouteImport.update({
+  id: '/anime/popular',
+  path: '/anime/popular',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeTopRatedRoute = AnimeTopRatedRouteImport.update({
+  id: '/anime/top-rated',
+  path: '/anime/top-rated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeTrendingRoute = AnimeTrendingRouteImport.update({
+  id: '/anime/trending',
+  path: '/anime/trending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCharacterRoute = ApiCharacterRouteImport.update({
@@ -72,118 +136,366 @@ const ApiSeasonRoute = ApiSeasonRouteImport.update({
   path: '/api/season',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CountryIndexRoute = CountryIndexRouteImport.update({
+  id: '/country/',
+  path: '/country/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountryCodeRoute = CountryCodeRouteImport.update({
+  id: '/country/$code',
+  path: '/country/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenreSlugRoute = GenreSlugRouteImport.update({
+  id: '/genre/$slug',
+  path: '/genre/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesIndexRoute = MoviesIndexRouteImport.update({
+  id: '/movies/',
+  path: '/movies/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesNowPlayingRoute = MoviesNowPlayingRouteImport.update({
+  id: '/movies/now-playing',
+  path: '/movies/now-playing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesPopularRoute = MoviesPopularRouteImport.update({
+  id: '/movies/popular',
+  path: '/movies/popular',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesTopRatedRoute = MoviesTopRatedRouteImport.update({
+  id: '/movies/top-rated',
+  path: '/movies/top-rated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvIndexRoute = TvIndexRouteImport.update({
+  id: '/tv/',
+  path: '/tv/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvAiringTodayRoute = TvAiringTodayRouteImport.update({
+  id: '/tv/airing-today',
+  path: '/tv/airing-today',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvPopularRoute = TvPopularRouteImport.update({
+  id: '/tv/popular',
+  path: '/tv/popular',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvTopRatedRoute = TvTopRatedRouteImport.update({
+  id: '/tv/top-rated',
+  path: '/tv/top-rated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeIdIndexRoute = AnimeIdIndexRouteImport.update({
+  id: '/anime/$id/',
+  path: '/anime/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeIdWatchRoute = AnimeIdWatchRouteImport.update({
+  id: '/anime/$id/watch',
+  path: '/anime/$id/watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAnimeEpisodesRoute = ApiAnimeEpisodesRouteImport.update({
   id: '/api/anime/episodes',
   path: '/api/anime/episodes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTmdbSplatRoute = ApiTmdbSplatRouteImport.update({
-  id: '/api/tmdb/$',
-  path: '/api/tmdb/$',
+const MovieIdIndexRoute = MovieIdIndexRouteImport.update({
+  id: '/movie/$id/',
+  path: '/movie/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovieIdWatchRoute = MovieIdWatchRouteImport.update({
+  id: '/movie/$id/watch',
+  path: '/movie/$id/watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvIdIndexRoute = TvIdIndexRouteImport.update({
+  id: '/tv/$id/',
+  path: '/tv/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvIdWatchRoute = TvIdWatchRouteImport.update({
+  id: '/tv/$id/watch',
+  path: '/tv/$id/watch',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/exclusives': typeof ExclusivesRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/api/anilist': typeof ApiAnilistRoute
+  '/trending': typeof TrendingRoute
+  '/anime/popular': typeof AnimePopularRoute
+  '/anime/top-rated': typeof AnimeTopRatedRoute
+  '/anime/trending': typeof AnimeTrendingRoute
   '/api/character': typeof ApiCharacterRoute
   '/api/login': typeof ApiLoginRoute
   '/api/logout': typeof ApiLogoutRoute
   '/api/person': typeof ApiPersonRoute
   '/api/search': typeof ApiSearchRoute
   '/api/season': typeof ApiSeasonRoute
+  '/country/$code': typeof CountryCodeRoute
+  '/genre/$slug': typeof GenreSlugRoute
+  '/movies/now-playing': typeof MoviesNowPlayingRoute
+  '/movies/popular': typeof MoviesPopularRoute
+  '/movies/top-rated': typeof MoviesTopRatedRoute
+  '/tv/airing-today': typeof TvAiringTodayRoute
+  '/tv/popular': typeof TvPopularRoute
+  '/tv/top-rated': typeof TvTopRatedRoute
+  '/anime/': typeof AnimeIndexRoute
+  '/country/': typeof CountryIndexRoute
+  '/movies/': typeof MoviesIndexRoute
+  '/tv/': typeof TvIndexRoute
+  '/anime/$id/watch': typeof AnimeIdWatchRoute
   '/api/anime/episodes': typeof ApiAnimeEpisodesRoute
-  '/api/tmdb/$': typeof ApiTmdbSplatRoute
+  '/movie/$id/watch': typeof MovieIdWatchRoute
+  '/tv/$id/watch': typeof TvIdWatchRoute
+  '/anime/$id/': typeof AnimeIdIndexRoute
+  '/movie/$id/': typeof MovieIdIndexRoute
+  '/tv/$id/': typeof TvIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/exclusives': typeof ExclusivesRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/api/anilist': typeof ApiAnilistRoute
+  '/trending': typeof TrendingRoute
+  '/anime/popular': typeof AnimePopularRoute
+  '/anime/top-rated': typeof AnimeTopRatedRoute
+  '/anime/trending': typeof AnimeTrendingRoute
   '/api/character': typeof ApiCharacterRoute
   '/api/login': typeof ApiLoginRoute
   '/api/logout': typeof ApiLogoutRoute
   '/api/person': typeof ApiPersonRoute
   '/api/search': typeof ApiSearchRoute
   '/api/season': typeof ApiSeasonRoute
+  '/country/$code': typeof CountryCodeRoute
+  '/genre/$slug': typeof GenreSlugRoute
+  '/movies/now-playing': typeof MoviesNowPlayingRoute
+  '/movies/popular': typeof MoviesPopularRoute
+  '/movies/top-rated': typeof MoviesTopRatedRoute
+  '/tv/airing-today': typeof TvAiringTodayRoute
+  '/tv/popular': typeof TvPopularRoute
+  '/tv/top-rated': typeof TvTopRatedRoute
+  '/anime': typeof AnimeIndexRoute
+  '/country': typeof CountryIndexRoute
+  '/movies': typeof MoviesIndexRoute
+  '/tv': typeof TvIndexRoute
+  '/anime/$id/watch': typeof AnimeIdWatchRoute
   '/api/anime/episodes': typeof ApiAnimeEpisodesRoute
-  '/api/tmdb/$': typeof ApiTmdbSplatRoute
+  '/movie/$id/watch': typeof MovieIdWatchRoute
+  '/tv/$id/watch': typeof TvIdWatchRoute
+  '/anime/$id': typeof AnimeIdIndexRoute
+  '/movie/$id': typeof MovieIdIndexRoute
+  '/tv/$id': typeof TvIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/exclusives': typeof ExclusivesRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/api/anilist': typeof ApiAnilistRoute
+  '/trending': typeof TrendingRoute
+  '/anime/popular': typeof AnimePopularRoute
+  '/anime/top-rated': typeof AnimeTopRatedRoute
+  '/anime/trending': typeof AnimeTrendingRoute
   '/api/character': typeof ApiCharacterRoute
   '/api/login': typeof ApiLoginRoute
   '/api/logout': typeof ApiLogoutRoute
   '/api/person': typeof ApiPersonRoute
   '/api/search': typeof ApiSearchRoute
   '/api/season': typeof ApiSeasonRoute
+  '/country/$code': typeof CountryCodeRoute
+  '/genre/$slug': typeof GenreSlugRoute
+  '/movies/now-playing': typeof MoviesNowPlayingRoute
+  '/movies/popular': typeof MoviesPopularRoute
+  '/movies/top-rated': typeof MoviesTopRatedRoute
+  '/tv/airing-today': typeof TvAiringTodayRoute
+  '/tv/popular': typeof TvPopularRoute
+  '/tv/top-rated': typeof TvTopRatedRoute
+  '/anime/': typeof AnimeIndexRoute
+  '/country/': typeof CountryIndexRoute
+  '/movies/': typeof MoviesIndexRoute
+  '/tv/': typeof TvIndexRoute
+  '/anime/$id/watch': typeof AnimeIdWatchRoute
   '/api/anime/episodes': typeof ApiAnimeEpisodesRoute
-  '/api/tmdb/$': typeof ApiTmdbSplatRoute
+  '/movie/$id/watch': typeof MovieIdWatchRoute
+  '/tv/$id/watch': typeof TvIdWatchRoute
+  '/anime/$id/': typeof AnimeIdIndexRoute
+  '/movie/$id/': typeof MovieIdIndexRoute
+  '/tv/$id/': typeof TvIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/exclusives'
+    | '/history'
     | '/login'
+    | '/my-list'
+    | '/search'
     | '/sitemap.xml'
-    | '/api/anilist'
+    | '/trending'
+    | '/anime/popular'
+    | '/anime/top-rated'
+    | '/anime/trending'
     | '/api/character'
     | '/api/login'
     | '/api/logout'
     | '/api/person'
     | '/api/search'
     | '/api/season'
+    | '/country/$code'
+    | '/genre/$slug'
+    | '/movies/now-playing'
+    | '/movies/popular'
+    | '/movies/top-rated'
+    | '/tv/airing-today'
+    | '/tv/popular'
+    | '/tv/top-rated'
+    | '/anime/'
+    | '/country/'
+    | '/movies/'
+    | '/tv/'
+    | '/anime/$id/watch'
     | '/api/anime/episodes'
-    | '/api/tmdb/$'
+    | '/movie/$id/watch'
+    | '/tv/$id/watch'
+    | '/anime/$id/'
+    | '/movie/$id/'
+    | '/tv/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/exclusives'
+    | '/history'
     | '/login'
+    | '/my-list'
+    | '/search'
     | '/sitemap.xml'
-    | '/api/anilist'
+    | '/trending'
+    | '/anime/popular'
+    | '/anime/top-rated'
+    | '/anime/trending'
     | '/api/character'
     | '/api/login'
     | '/api/logout'
     | '/api/person'
     | '/api/search'
     | '/api/season'
+    | '/country/$code'
+    | '/genre/$slug'
+    | '/movies/now-playing'
+    | '/movies/popular'
+    | '/movies/top-rated'
+    | '/tv/airing-today'
+    | '/tv/popular'
+    | '/tv/top-rated'
+    | '/anime'
+    | '/country'
+    | '/movies'
+    | '/tv'
+    | '/anime/$id/watch'
     | '/api/anime/episodes'
-    | '/api/tmdb/$'
+    | '/movie/$id/watch'
+    | '/tv/$id/watch'
+    | '/anime/$id'
+    | '/movie/$id'
+    | '/tv/$id'
   id:
     | '__root__'
     | '/'
+    | '/exclusives'
+    | '/history'
     | '/login'
+    | '/my-list'
+    | '/search'
     | '/sitemap.xml'
-    | '/api/anilist'
+    | '/trending'
+    | '/anime/popular'
+    | '/anime/top-rated'
+    | '/anime/trending'
     | '/api/character'
     | '/api/login'
     | '/api/logout'
     | '/api/person'
     | '/api/search'
     | '/api/season'
+    | '/country/$code'
+    | '/genre/$slug'
+    | '/movies/now-playing'
+    | '/movies/popular'
+    | '/movies/top-rated'
+    | '/tv/airing-today'
+    | '/tv/popular'
+    | '/tv/top-rated'
+    | '/anime/'
+    | '/country/'
+    | '/movies/'
+    | '/tv/'
+    | '/anime/$id/watch'
     | '/api/anime/episodes'
-    | '/api/tmdb/$'
+    | '/movie/$id/watch'
+    | '/tv/$id/watch'
+    | '/anime/$id/'
+    | '/movie/$id/'
+    | '/tv/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExclusivesRoute: typeof ExclusivesRoute
+  HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
+  MyListRoute: typeof MyListRoute
+  SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ApiAnilistRoute: typeof ApiAnilistRoute
+  TrendingRoute: typeof TrendingRoute
+  AnimePopularRoute: typeof AnimePopularRoute
+  AnimeTopRatedRoute: typeof AnimeTopRatedRoute
+  AnimeTrendingRoute: typeof AnimeTrendingRoute
   ApiCharacterRoute: typeof ApiCharacterRoute
   ApiLoginRoute: typeof ApiLoginRoute
   ApiLogoutRoute: typeof ApiLogoutRoute
   ApiPersonRoute: typeof ApiPersonRoute
   ApiSearchRoute: typeof ApiSearchRoute
   ApiSeasonRoute: typeof ApiSeasonRoute
+  CountryCodeRoute: typeof CountryCodeRoute
+  GenreSlugRoute: typeof GenreSlugRoute
+  MoviesNowPlayingRoute: typeof MoviesNowPlayingRoute
+  MoviesPopularRoute: typeof MoviesPopularRoute
+  MoviesTopRatedRoute: typeof MoviesTopRatedRoute
+  TvAiringTodayRoute: typeof TvAiringTodayRoute
+  TvPopularRoute: typeof TvPopularRoute
+  TvTopRatedRoute: typeof TvTopRatedRoute
+  AnimeIndexRoute: typeof AnimeIndexRoute
+  CountryIndexRoute: typeof CountryIndexRoute
+  MoviesIndexRoute: typeof MoviesIndexRoute
+  TvIndexRoute: typeof TvIndexRoute
+  AnimeIdWatchRoute: typeof AnimeIdWatchRoute
   ApiAnimeEpisodesRoute: typeof ApiAnimeEpisodesRoute
-  ApiTmdbSplatRoute: typeof ApiTmdbSplatRoute
+  MovieIdWatchRoute: typeof MovieIdWatchRoute
+  TvIdWatchRoute: typeof TvIdWatchRoute
+  AnimeIdIndexRoute: typeof AnimeIdIndexRoute
+  MovieIdIndexRoute: typeof MovieIdIndexRoute
+  TvIdIndexRoute: typeof TvIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -195,11 +507,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exclusives': {
+      id: '/exclusives'
+      path: '/exclusives'
+      fullPath: '/exclusives'
+      preLoaderRoute: typeof ExclusivesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-list': {
+      id: '/my-list'
+      path: '/my-list'
+      fullPath: '/my-list'
+      preLoaderRoute: typeof MyListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -209,11 +549,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/anilist': {
-      id: '/api/anilist'
-      path: '/api/anilist'
-      fullPath: '/api/anilist'
-      preLoaderRoute: typeof ApiAnilistRouteImport
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/': {
+      id: '/anime/'
+      path: '/anime'
+      fullPath: '/anime/'
+      preLoaderRoute: typeof AnimeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/popular': {
+      id: '/anime/popular'
+      path: '/anime/popular'
+      fullPath: '/anime/popular'
+      preLoaderRoute: typeof AnimePopularRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/top-rated': {
+      id: '/anime/top-rated'
+      path: '/anime/top-rated'
+      fullPath: '/anime/top-rated'
+      preLoaderRoute: typeof AnimeTopRatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/trending': {
+      id: '/anime/trending'
+      path: '/anime/trending'
+      fullPath: '/anime/trending'
+      preLoaderRoute: typeof AnimeTrendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/character': {
@@ -258,6 +626,97 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/country/': {
+      id: '/country/'
+      path: '/country'
+      fullPath: '/country/'
+      preLoaderRoute: typeof CountryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/country/$code': {
+      id: '/country/$code'
+      path: '/country/$code'
+      fullPath: '/country/$code'
+      preLoaderRoute: typeof CountryCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/genre/$slug': {
+      id: '/genre/$slug'
+      path: '/genre/$slug'
+      fullPath: '/genre/$slug'
+      preLoaderRoute: typeof GenreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies/': {
+      id: '/movies/'
+      path: '/movies'
+      fullPath: '/movies/'
+      preLoaderRoute: typeof MoviesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies/now-playing': {
+      id: '/movies/now-playing'
+      path: '/movies/now-playing'
+      fullPath: '/movies/now-playing'
+      preLoaderRoute: typeof MoviesNowPlayingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies/popular': {
+      id: '/movies/popular'
+      path: '/movies/popular'
+      fullPath: '/movies/popular'
+      preLoaderRoute: typeof MoviesPopularRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies/top-rated': {
+      id: '/movies/top-rated'
+      path: '/movies/top-rated'
+      fullPath: '/movies/top-rated'
+      preLoaderRoute: typeof MoviesTopRatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/': {
+      id: '/tv/'
+      path: '/tv'
+      fullPath: '/tv/'
+      preLoaderRoute: typeof TvIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/airing-today': {
+      id: '/tv/airing-today'
+      path: '/tv/airing-today'
+      fullPath: '/tv/airing-today'
+      preLoaderRoute: typeof TvAiringTodayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/popular': {
+      id: '/tv/popular'
+      path: '/tv/popular'
+      fullPath: '/tv/popular'
+      preLoaderRoute: typeof TvPopularRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/top-rated': {
+      id: '/tv/top-rated'
+      path: '/tv/top-rated'
+      fullPath: '/tv/top-rated'
+      preLoaderRoute: typeof TvTopRatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/$id/': {
+      id: '/anime/$id/'
+      path: '/anime/$id'
+      fullPath: '/anime/$id/'
+      preLoaderRoute: typeof AnimeIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/$id/watch': {
+      id: '/anime/$id/watch'
+      path: '/anime/$id/watch'
+      fullPath: '/anime/$id/watch'
+      preLoaderRoute: typeof AnimeIdWatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/anime/episodes': {
       id: '/api/anime/episodes'
       path: '/api/anime/episodes'
@@ -265,11 +724,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAnimeEpisodesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/tmdb/$': {
-      id: '/api/tmdb/$'
-      path: '/api/tmdb/$'
-      fullPath: '/api/tmdb/$'
-      preLoaderRoute: typeof ApiTmdbSplatRouteImport
+    '/movie/$id/': {
+      id: '/movie/$id/'
+      path: '/movie/$id'
+      fullPath: '/movie/$id/'
+      preLoaderRoute: typeof MovieIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movie/$id/watch': {
+      id: '/movie/$id/watch'
+      path: '/movie/$id/watch'
+      fullPath: '/movie/$id/watch'
+      preLoaderRoute: typeof MovieIdWatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/$id/': {
+      id: '/tv/$id/'
+      path: '/tv/$id'
+      fullPath: '/tv/$id/'
+      preLoaderRoute: typeof TvIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/$id/watch': {
+      id: '/tv/$id/watch'
+      path: '/tv/$id/watch'
+      fullPath: '/tv/$id/watch'
+      preLoaderRoute: typeof TvIdWatchRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -277,17 +757,41 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExclusivesRoute: ExclusivesRoute,
+  HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
+  MyListRoute: MyListRoute,
+  SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ApiAnilistRoute: ApiAnilistRoute,
+  TrendingRoute: TrendingRoute,
+  AnimePopularRoute: AnimePopularRoute,
+  AnimeTopRatedRoute: AnimeTopRatedRoute,
+  AnimeTrendingRoute: AnimeTrendingRoute,
   ApiCharacterRoute: ApiCharacterRoute,
   ApiLoginRoute: ApiLoginRoute,
   ApiLogoutRoute: ApiLogoutRoute,
   ApiPersonRoute: ApiPersonRoute,
   ApiSearchRoute: ApiSearchRoute,
   ApiSeasonRoute: ApiSeasonRoute,
+  CountryCodeRoute: CountryCodeRoute,
+  GenreSlugRoute: GenreSlugRoute,
+  MoviesNowPlayingRoute: MoviesNowPlayingRoute,
+  MoviesPopularRoute: MoviesPopularRoute,
+  MoviesTopRatedRoute: MoviesTopRatedRoute,
+  TvAiringTodayRoute: TvAiringTodayRoute,
+  TvPopularRoute: TvPopularRoute,
+  TvTopRatedRoute: TvTopRatedRoute,
+  AnimeIndexRoute: AnimeIndexRoute,
+  CountryIndexRoute: CountryIndexRoute,
+  MoviesIndexRoute: MoviesIndexRoute,
+  TvIndexRoute: TvIndexRoute,
+  AnimeIdWatchRoute: AnimeIdWatchRoute,
   ApiAnimeEpisodesRoute: ApiAnimeEpisodesRoute,
-  ApiTmdbSplatRoute: ApiTmdbSplatRoute,
+  MovieIdWatchRoute: MovieIdWatchRoute,
+  TvIdWatchRoute: TvIdWatchRoute,
+  AnimeIdIndexRoute: AnimeIdIndexRoute,
+  MovieIdIndexRoute: MovieIdIndexRoute,
+  TvIdIndexRoute: TvIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

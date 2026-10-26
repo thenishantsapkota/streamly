@@ -17,5 +17,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".output", ".nitro", ".tanstack", "app"]
+  "exclude": ["node_modules", ".output", ".nitro", ".tanstack"]
 }

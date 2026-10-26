@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "placeholder" | "src"> & {
   src: string;
   alt: string;
-  /** Absolutely fill the (positioned) parent, like next/image `fill`. */
+  /** Absolutely fill the (positioned) parent. */
   fill?: boolean;
   /** Load eagerly with high fetch priority (above-the-fold art). */
   priority?: boolean;
@@ -12,7 +12,7 @@ type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "placeholder" | "sr
 };
 
 /**
- * Plain <img> with the handful of next/image props the app uses. TMDB and
+ * Plain <img> with fill/priority/blur-placeholder props. TMDB and
  * AniList already serve pre-sized images, so callers pick the right size in
  * the URL (posterUrl(..., "w342") etc.) instead of relying on an optimizer.
  */

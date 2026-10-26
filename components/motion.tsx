@@ -166,7 +166,7 @@ export function SplitTitle({
   return (
     <Tag className={className} aria-label={text}>
       {words.map((w, i) => (
-        <span key={`${w}-${i}`} aria-hidden className="inline-block overflow-hidden pb-[0.12em] -mb-[0.12em] align-bottom">
+        <span key={`${w}-${i}`} aria-hidden className="inline-block overflow-hidden pb-[0.24em] -mb-[0.24em] align-bottom">
           <motion.span
             className="inline-block"
             initial={reduce ? false : { y: "110%" }}

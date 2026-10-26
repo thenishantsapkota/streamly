@@ -185,7 +185,7 @@ export function Hero({ items, label = "Trending now" }: { items: MediaItem[]; la
 
               <h1 aria-label={title} className="mt-4 text-4xl font-semibold leading-[1.02] tracking-tighter sm:text-5xl xl:text-6xl">
                 {words.map((w, i) => (
-                  <span key={`${w}-${i}`} aria-hidden className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-bottom">
+                  <span key={`${w}-${i}`} aria-hidden className="-mb-[0.24em] inline-block overflow-hidden pb-[0.24em] align-bottom">
                     <motion.span
                       className="inline-block"
                       initial={reduce ? false : { y: "110%", rotate: 4 }}

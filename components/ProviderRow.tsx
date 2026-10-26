@@ -1,6 +1,10 @@
+import { Suspense } from "react";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { Row } from "./Row";
+import { RowSkeleton } from "./QueryRow";
 import { Reveal } from "./motion";
-import { IMG, tmdbApi } from "@/lib/tmdb";
+import { IMG, type MediaItem } from "@/lib/tmdb";
+import { apiQueryOr } from "@/lib/api";
 import type { Provider } from "@/lib/providers";
 
 type Props = {
@@ -10,30 +14,63 @@ type Props = {
   variant?: "condensed" | "full";
 };
 
+const EMPTY: { results: MediaItem[] } = { results: [] };
+
+/** Popular titles on a provider; resolves to an empty page instead of throwing. */
+export function providerQuery(type: "movie" | "tv", provider: Provider) {
+  return apiQueryOr(EMPTY, "tmdb", "discoverByProvider", type, provider.id, provider.region);
+}
+
 /**
- * Server component: fetches popular movies (and optionally TV) on the given
- * streaming provider and renders one or two `<Row>`s.
+ * Popular movies (and optionally TV) on the given streaming provider, as one
+ * or two `<Row>`s. Suspends behind a skeleton until the data is cached; prime
+ * it in a route loader with `providerQuery(...)`.
  */
-export async function ProviderRow({ provider, variant = "condensed" }: Props) {
+export function ProviderRow({ provider, variant = "condensed" }: Props) {
   if (variant === "condensed") {
-    const movies = await tmdbApi
-      .discoverByProvider("movie", provider.id, provider.region)
-      .catch(() => ({ results: [] }));
-    if (!movies.results.length) return null;
     return (
-      <Row
-        title={`Exclusively on ${provider.name}`}
-        items={movies.results}
-        forceType="movie"
-        viewAllHref={`/exclusives#${provider.slug}`}
-      />
+      <Suspense fallback={<RowSkeleton />}>
+        <CondensedProviderRow provider={provider} />
+      </Suspense>
     );
   }
+  return (
+    <Suspense
+      fallback={
+        <section id={provider.slug} className="mt-20 scroll-mt-24 first-of-type:mt-8 [&>section]:mt-10" aria-hidden>
+          <div className="px-4 sm:px-6">
+            <div className="flex items-center gap-4 border-t border-border pt-6">
+              <div className="size-10 shimmer sm:size-12" />
+              <div className="h-9 w-48 shimmer sm:h-12" />
+            </div>
+          </div>
+          <RowSkeleton />
+          <RowSkeleton />
+        </section>
+      }
+    >
+      <FullProviderRow provider={provider} />
+    </Suspense>
+  );
+}
 
-  const [movies, tv] = await Promise.all([
-    tmdbApi.discoverByProvider("movie", provider.id, provider.region).catch(() => ({ results: [] })),
-    tmdbApi.discoverByProvider("tv", provider.id, provider.region).catch(() => ({ results: [] })),
-  ]);
+function CondensedProviderRow({ provider }: { provider: Provider }) {
+  const { data: movies } = useSuspenseQuery(providerQuery("movie", provider));
+  if (!movies.results.length) return null;
+  return (
+    <Row
+      title={`Exclusively on ${provider.name}`}
+      items={movies.results}
+      forceType="movie"
+      viewAllHref={`/exclusives#${provider.slug}`}
+    />
+  );
+}
+
+function FullProviderRow({ provider }: { provider: Provider }) {
+  const [{ data: movies }, { data: tv }] = useSuspenseQueries({
+    queries: [providerQuery("movie", provider), providerQuery("tv", provider)],
+  });
 
   if (!movies.results.length && !tv.results.length) return null;
 

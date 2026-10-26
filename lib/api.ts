@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
+import { notFound } from "@tanstack/react-router";
 import { tmdbApi } from "./tmdb";
 import { anilistApi, anilistExtra } from "./anilist";
 
@@ -72,4 +73,15 @@ export function apiQueryOr<A extends ApiName, M extends Method<A>, F>(
       }
     },
   });
+}
+
+/**
+ * Loader `.catch` handler: a missing title upstream (TMDB 404, AniList
+ * "Not Found") becomes the not-found page; anything else (outage, rate
+ * limit) is rethrown so the error page offers a retry.
+ */
+export function notFoundIfMissing(err: unknown): never {
+  const message = err instanceof Error ? err.message : String(err);
+  if (/\b404\b|not found/i.test(message)) throw notFound();
+  throw err;
 }

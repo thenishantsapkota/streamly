@@ -1,10 +1,10 @@
 # Streamly
 
-A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.org/) for metadata with [Videasy](https://videasy.net/) and [VidSrc](https://vidsrc.mov/) as embeddable players. Continue-watching is tracked via `localStorage`.
+A movie, TV and anime streaming UI built on [TanStack Start](https://tanstack.com/start) and React Query, with [TMDB](https://www.themoviedb.org/) and [AniList](https://anilist.co/) for metadata, and [Videasy](https://videasy.net/) and [VidSrc](https://vidsrc.mov/) as embeddable players. Continue-watching is tracked via `localStorage`.
 
 ## Features
 
-- Trending, popular, top rated rows for movies and TV (RSC + ISR)
+- Home page of category blocks (films, series, anime) with 20+ rows, server-rendered and streamed through React Query
 - Search across movies and TV
 - Movie detail page with embedded player
 - TV detail page with season/episode picker
@@ -14,7 +14,7 @@ A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.
 ## Setup
 
 1. Get a free TMDB v3 API key: <https://www.themoviedb.org/settings/api>
-2. Copy `.env.example` to `.env.local` and fill in:
+2. Copy `.env.example` to `.env` and fill in:
 
    ```
    TMDB_API_KEY=your_key_here
@@ -27,8 +27,10 @@ A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.
 
    ```
    npm install
-   npm run dev
+   npm run dev        # http://localhost:3000
    ```
+
+   `npm run build` builds with Nitro (auto-detects Vercel when deployed there); `npm start` serves the build locally. `npm run og` re-renders `public/opengraph-image.png`.
 
 ## Deploy on Vercel
 
@@ -39,8 +41,15 @@ A modern Next.js movie/TV streaming UI powered by [TMDB](https://www.themoviedb.
 
 ## Access control
 
-- **Geoblock**: `middleware.ts` reads Vercel's `x-vercel-ip-country` header and serves a 403 page to any request originating outside Nepal (`NP`). Locally there's no header, so dev is unaffected.
-- **Password protection**: when both `AUTH_USERNAME` and `AUTH_PASSWORD` are set, every request is gated by HTTP Basic auth. Leaving them unset disables auth entirely. Run order is geoblock → auth.
+- **Geoblock**: the request middleware in `src/start.ts` reads Vercel's `x-vercel-ip-country` header and serves a 403 page to any request originating outside Nepal (`NP`). Locally there's no header, so dev is unaffected.
+- **Password protection**: when both `AUTH_USERNAME` and `AUTH_PASSWORD` are set, every request is gated by a signed login cookie (sign in at `/login`). Leaving them unset disables auth entirely. Run order is geoblock → auth.
+
+## Architecture
+
+- `src/routes/`: file routes. Loaders prime React Query with `apiQuery(...)` from `lib/api.ts`; components read the same cache with `useSuspenseQuery`.
+- `lib/api.ts`: one server function that calls `lib/tmdb.ts` / `lib/anilist.ts` on the server, so `TMDB_API_KEY` never reaches the browser. Upstream responses are cached in memory for an hour (`lib/cache.ts`).
+- `src/routes/api/`: JSON endpoints used by client components (search, seasons, cast popovers, filler data).
+- `src/start.ts`: request middleware for the geoblock and login cookie.
 
 ## How progress tracking works
 
