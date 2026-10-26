@@ -210,6 +210,27 @@ export const tmdbApi = {
   trendingTv: (window: "day" | "week" = "week") =>
     tmdb<{ results: MediaItem[] }>(`/trending/tv/${window}`),
 
+  /** Most-watched films released in the decade starting at `startYear` (e.g. 1990). */
+  moviesByDecade: (startYear: number, page = 1) =>
+    tmdb<{ results: MediaItem[] }>("/discover/movie", {
+      "primary_release_date.gte": `${startYear}-01-01`,
+      "primary_release_date.lte": `${startYear + 9}-12-31`,
+      sort_by: "vote_count.desc",
+      include_adult: "false",
+      page,
+    }),
+
+  /** Highly rated films with a modest audience: good but not ubiquitous. */
+  hiddenGemMovies: (page = 1) =>
+    tmdb<{ results: MediaItem[] }>("/discover/movie", {
+      "vote_average.gte": 7.3,
+      "vote_count.gte": 300,
+      "vote_count.lte": 2500,
+      sort_by: "vote_average.desc",
+      include_adult: "false",
+      page,
+    }),
+
   upcomingMovies: (page = 1) =>
     tmdb<{ results: MediaItem[] }>("/movie/upcoming", { page, region: "US" }),
 

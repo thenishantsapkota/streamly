@@ -3,6 +3,7 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts, useRouterStat
 import { motion, useReducedMotion } from "motion/react";
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/AppShell";
+import { SPLASH_SEEN_KEY } from "@/components/SplashScreen";
 import { ErrorPage } from "@/components/ErrorPage";
 import { NotFoundPage } from "@/components/NotFoundPage";
 import { PageSkeleton } from "@/components/PageSkeleton";
@@ -67,6 +68,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
     ],
     scripts: [
+      // Runs before first paint: the server always renders the splash (it
+      // can't see sessionStorage), so hide it for returning visitors here.
+      {
+        children: `try{if(sessionStorage.getItem(${JSON.stringify(SPLASH_SEEN_KEY)})==="1")document.documentElement.dataset.splash="seen"}catch(e){}`,
+      },
       { type: "application/ld+json", children: JSON.stringify(websiteJsonLd) },
       { type: "application/ld+json", children: JSON.stringify(orgJsonLd) },
     ],
@@ -81,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

@@ -1,4 +1,5 @@
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
+import { useInView } from "motion/react";
 import { useSuspenseQuery, type UseSuspenseQueryOptions } from "@tanstack/react-query";
 import { Row } from "./Row";
 import { AnimeRow } from "./AnimeRow";
@@ -43,13 +44,27 @@ function MediaRowInner({
   return <Row title={title} items={data.results} forceType={forceType} viewAllHref={href} />;
 }
 
-/** A TMDB poster row fed by a React Query entry; suspends behind its own skeleton. */
-export function QueryRow(props: Parameters<typeof MediaRowInner>[0]) {
-  return (
+/**
+ * Renders the skeleton until the row is within ~2 screens of the viewport,
+ * so long pages only fetch what the reader is about to reach.
+ */
+function WhenNear({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const near = useInView(ref, { once: true, margin: "1200px 0px" });
+  return <div ref={ref}>{near ? children : <RowSkeleton />}</div>;
+}
+
+/**
+ * A TMDB poster row fed by a React Query entry; suspends behind its own
+ * skeleton. `lazy` rows don't fetch until they're about to scroll into view.
+ */
+export function QueryRow({ lazy, ...props }: Parameters<typeof MediaRowInner>[0] & { lazy?: boolean }) {
+  const row = (
     <Suspense fallback={<RowSkeleton />}>
       <MediaRowInner {...props} />
     </Suspense>
   );
+  return lazy ? <WhenNear>{row}</WhenNear> : row;
 }
 
 function AnimeRowInner({
@@ -66,10 +81,11 @@ function AnimeRowInner({
 }
 
 /** AniList variant of QueryRow. */
-export function AnimeQueryRow(props: Parameters<typeof AnimeRowInner>[0]) {
-  return (
+export function AnimeQueryRow({ lazy, ...props }: Parameters<typeof AnimeRowInner>[0] & { lazy?: boolean }) {
+  const row = (
     <Suspense fallback={<RowSkeleton />}>
       <AnimeRowInner {...props} />
     </Suspense>
   );
+  return lazy ? <WhenNear>{row}</WhenNear> : row;
 }

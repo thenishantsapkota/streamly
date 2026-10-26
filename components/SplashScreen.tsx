@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { EASE_CINEMA } from "./motion";
 import { MARK_ACCENT, MARK_BARS, MARK_LIGHT, MARK_PLAY, MARK_VIEWBOX } from "@/lib/brand-mark";
 
-const SEEN_KEY = "splash-seen-v3";
+export const SPLASH_SEEN_KEY = "splash-seen-v3";
 let shouldPlay: boolean | null = null;
 
 type Phase = "count" | "brand" | "out" | "done";
@@ -31,8 +31,8 @@ export function SplashScreen() {
     // the flag this same load just wrote.
     if (shouldPlay === null) {
       try {
-        shouldPlay = window.sessionStorage.getItem(SEEN_KEY) !== "1";
-        window.sessionStorage.setItem(SEEN_KEY, "1");
+        shouldPlay = window.sessionStorage.getItem(SPLASH_SEEN_KEY) !== "1";
+        window.sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
       } catch {
         shouldPlay = true;
       }
@@ -57,7 +57,7 @@ export function SplashScreen() {
   const letters = "STREAMLY".split("");
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-9999 overflow-hidden" aria-hidden>
+    <div className="splash-root pointer-events-none fixed inset-0 z-9999 overflow-hidden" aria-hidden>
       {/* Letterbox halves: the curtain that opens at the end */}
       <motion.div
         className="absolute inset-x-0 top-0 h-1/2 bg-bg"
