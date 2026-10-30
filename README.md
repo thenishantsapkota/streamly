@@ -1,6 +1,6 @@
 # Streamly
 
-A movie, TV and anime streaming UI built on [TanStack Start](https://tanstack.com/start) and React Query, with [TMDB](https://www.themoviedb.org/) and [AniList](https://anilist.co/) for metadata, and [Videasy](https://videasy.net/) and [VidSrc](https://vidsrc.mov/) as embeddable players. Continue-watching is tracked via `localStorage`.
+A movie, TV and anime streaming UI built on [TanStack Start](https://tanstack.com/start) and React Query, with [TMDB](https://www.themoviedb.org/) and [AniList](https://anilist.co/) for metadata, and [VidSrc](https://vidsrc.mov/) as the embedded player. Continue-watching is tracked via `localStorage`.
 
 ## Features
 
@@ -8,8 +8,7 @@ A movie, TV and anime streaming UI built on [TanStack Start](https://tanstack.co
 - Search across movies and TV
 - Movie detail page with embedded player
 - TV detail page with season/episode picker
-- "Continue Watching" rail backed by `localStorage`, with resume position
-- Listens to the Videasy player's `postMessage` `PLAYER_EVENT`s to record progress
+- "Continue Watching" rail and watch history backed by `localStorage`
 
 ## Setup
 

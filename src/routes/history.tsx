@@ -91,7 +91,7 @@ function HistoryPage() {
           <motion.ul layout={!reduce} className="border-t border-border">
             <AnimatePresence initial={false}>
               {items.map((it, i) => {
-                let href = `/${it.type}/${it.id}`;
+                let href = `/${it.type}/${it.id}/watch`;
                 if (it.type === "tv" && it.season && it.episode) {
                   href = `/tv/${it.id}/watch?s=${it.season}&e=${it.episode}`;
                 } else if (it.type === "anime" && it.episode) {
@@ -157,7 +157,7 @@ function HistoryPage() {
                         </Link>
                         <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 tabular-nums text-xs text-text-dim">
                           <span className="text-text">{where}</span>
-                          <span>{pct}% watched</span>
+                          {pct > 0 && <span>{pct}% watched</span>}
                           <span>{timeAgo}</span>
                         </div>
                       </div>

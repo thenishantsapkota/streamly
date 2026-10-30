@@ -57,7 +57,7 @@ async function GET(req: Request) {
 
   // Dedup roughly: if the same title+year exists as both a TMDB TV and an
   // AniList entry, drop the TMDB one — AniList has richer anime data and
-  // sub/dub support via videasy's anime route.
+  // sub/dub info.
   const animeKeys = new Set(
     animeResults.map((a) => `${a.title.toLowerCase()}|${a.year}`),
   );

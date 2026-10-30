@@ -3,18 +3,16 @@ import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@/lib/router-compat";
 import { Player } from "@/components/Player";
 import { Row } from "@/components/Row";
-import type { CastEntry } from "@/components/CastOnPause";
-import { backdropUrl, posterUrl, profileUrl } from "@/lib/tmdb";
+import { backdropUrl, posterUrl } from "@/lib/tmdb";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { Reveal, SplitTitle } from "@/components/motion";
-import { apiQuery, apiQueryOr, notFoundIfMissing } from "@/lib/api";
+import { apiQuery, notFoundIfMissing } from "@/lib/api";
 import { SITE_NAME } from "@/lib/site";
 
 const queries = (id: string) =>
   [
     apiQuery("tmdb", "movie", id),
     apiQuery("tmdb", "movieRecs", id),
-    apiQueryOr({ cast: [], crew: [] }, "tmdb", "movieCredits", id),
   ] as const;
 
 export const Route = createFileRoute("/movie/$id/watch")({
@@ -23,7 +21,6 @@ export const Route = createFileRoute("/movie/$id/watch")({
     const [movie] = await Promise.all([
       queryClient.ensureQueryData(q[0]),
       queryClient.ensureQueryData(q[1]),
-      queryClient.ensureQueryData(q[2]),
     ]).catch(notFoundIfMissing);
     return {
       title: movie.title ?? "Movie",
@@ -44,16 +41,8 @@ export const Route = createFileRoute("/movie/$id/watch")({
 function MovieWatchPage() {
   const { id } = Route.useParams();
   const numId = Number(id);
-  const [{ data: movie }, { data: recs }, { data: credits }] = useSuspenseQueries({ queries: queries(id) });
+  const [{ data: movie }, { data: recs }] = useSuspenseQueries({ queries: queries(id) });
 
-  const cast: CastEntry[] = credits.cast
-    .slice(0, 20)
-    .map((c) => ({
-      personId: c.id,
-      personName: c.name,
-      personImage: profileUrl(c.profile_path, "w185"),
-      character: c.character || "",
-    }));
 
   return (
     <div className="pb-12">
@@ -83,7 +72,6 @@ function MovieWatchPage() {
           title={movie.title ?? "Untitled"}
           poster={posterUrl(movie.poster_path, "w342")}
           backdrop={backdropUrl(movie.backdrop_path, "w780")}
-          cast={cast}
         />
       </div>
       <div className="mx-auto max-w-7xl">

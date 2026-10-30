@@ -42,7 +42,7 @@ export function RecentlyWatched() {
       <h2 className="mb-3 px-4 sm:px-6 text-lg font-semibold tracking-tight">Continue Watching</h2>
       <DraggableScroll className="no-scrollbar flex gap-4 overflow-x-auto px-4 sm:px-6 pb-2">
         {dedupedItems.map((it) => {
-          let href = `/${it.type}/${it.id}`;
+          let href = `/${it.type}/${it.id}/watch`;
           if (it.type === "tv" && it.season && it.episode) {
             href = `/tv/${it.id}/watch?s=${it.season}&e=${it.episode}`;
           } else if (it.type === "anime" && it.episode) {
@@ -79,11 +79,18 @@ export function RecentlyWatched() {
                   <div className="min-w-0">
                     <div className="line-clamp-1 text-sm font-medium">{it.title}</div>
                     <div className="text-xs text-text-dim">
-                      {it.type === "tv" && it.season && it.episode
-                        ? `S${it.season} · E${it.episode} · ${pct}% watched`
-                        : it.type === "anime" && it.episode
-                          ? `Anime · E${it.episode} · ${pct}% watched`
-                          : `${pct}% watched`}
+                      {[
+                        it.type === "tv" && it.season && it.episode
+                          ? `S${it.season} · E${it.episode}`
+                          : it.type === "anime" && it.episode
+                            ? `Anime · E${it.episode}`
+                            : it.type === "movie"
+                              ? "Film"
+                              : "Anime",
+                        pct > 0 ? `${pct}% watched` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </div>
                   </div>
                 </div>

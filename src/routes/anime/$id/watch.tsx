@@ -6,13 +6,12 @@ import { Reveal, SplitTitle } from "@/components/motion";
 import { Player } from "@/components/Player";
 import { AnimeEpisodeList } from "@/components/AnimeEpisodeList";
 import { AnimeEpisodeNav } from "@/components/AnimeEpisodeNav";
-import type { CastEntry } from "@/components/CastOnPause";
 import { animeIsMovie, animeTitle, getEpisodeCount } from "@/lib/anilist";
 import { apiQuery, apiQueryOr, notFoundIfMissing } from "@/lib/api";
 import { SITE_NAME } from "@/lib/site";
 
 const queries = (id: string) =>
-  [apiQuery("anilist", "byId", id), apiQueryOr([], "anilistExtra", "characters", id)] as const;
+  [apiQuery("anilist", "byId", id)] as const;
 
 export const Route = createFileRoute("/anime/$id/watch")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -22,12 +21,11 @@ export const Route = createFileRoute("/anime/$id/watch")({
   loaderDeps: ({ search: { e } }) => ({ e }),
   loader: async ({ context: { queryClient }, params: { id }, deps: { e } }) => {
     const q = queries(id);
-    const [a] = await Promise.all([queryClient.ensureQueryData(q[0]), queryClient.ensureQueryData(q[1])]).catch(notFoundIfMissing);
+    const a = await queryClient.ensureQueryData(q[0]).catch(notFoundIfMissing);
     if (!a) throw notFound();
     const isMovie = animeIsMovie(a);
 
-    // Look up a TMDB id by title so vidsrc (TMDB-only) can be offered as an
-    // alternate source when videasy doesn't have the title in its library.
+    // Look up a TMDB id by title: vidsrc only knows TMDB ids.
     const searchTitle = a.title.english || a.title.romaji || "";
     const tmdbId = searchTitle
       ? await queryClient.ensureQueryData(apiQueryOr(null, "tmdb", "findAnimeTmdbId", searchTitle, isMovie))
@@ -52,23 +50,10 @@ function AnimeWatchPage() {
   const { id } = Route.useParams();
   const sp = Route.useSearch();
   const { tmdbAlt } = Route.useLoaderData();
-  const [{ data: a }, { data: characters }] = useSuspenseQueries({ queries: queries(id) });
+  const [{ data: a }] = useSuspenseQueries({ queries: queries(id) });
   const numId = Number(id);
   const isMovie = animeIsMovie(a);
 
-  // For anime, the "person" we look up is the voice actor; the "character"
-  // is the role they play in the show.
-  const cast: CastEntry[] = characters
-    .filter((c) => c.voiceActor)
-    .slice(0, 20)
-    .map((c) => ({
-      personId: c.voiceActor!.id,
-      personName: c.voiceActor!.name,
-      personImage: c.voiceActor!.image,
-      character: c.name,
-      characterId: c.id,
-      characterImage: c.image,
-    }));
   const episode = isMovie ? undefined : (sp.e ?? 1);
   const title = animeTitle(a);
   const poster = a.coverImage.extraLarge || a.coverImage.large;
@@ -102,7 +87,6 @@ function AnimeWatchPage() {
           poster={poster}
           backdrop={a.bannerImage}
           episode={episode}
-          cast={cast}
           tmdbAlt={tmdbAlt}
         />
         {!isMovie && episode != null && (

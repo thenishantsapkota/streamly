@@ -4,8 +4,7 @@ import { Link } from "@/lib/router-compat";
 import { Player } from "@/components/Player";
 import { SeasonPicker } from "@/components/SeasonPicker";
 import { EpisodeNav } from "@/components/EpisodeNav";
-import type { CastEntry } from "@/components/CastOnPause";
-import { backdropUrl, isAnimeTv, posterUrl, profileUrl } from "@/lib/tmdb";
+import { backdropUrl, isAnimeTv, posterUrl } from "@/lib/tmdb";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { Reveal, SplitTitle } from "@/components/motion";
 import { apiQuery, apiQueryOr, notFoundIfMissing } from "@/lib/api";
@@ -18,7 +17,7 @@ function toPositiveInt(v: unknown) {
 }
 
 const queries = (id: string) =>
-  [apiQuery("tmdb", "tv", id), apiQueryOr({ cast: [], crew: [] }, "tmdb", "tvCredits", id)] as const;
+  [apiQuery("tmdb", "tv", id)] as const;
 
 export const Route = createFileRoute("/tv/$id/watch")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -28,7 +27,7 @@ export const Route = createFileRoute("/tv/$id/watch")({
   loaderDeps: ({ search: { s, e } }) => ({ s, e }),
   loader: async ({ context: { queryClient }, params: { id }, deps: { s, e } }) => {
     const q = queries(id);
-    const [tv] = await Promise.all([queryClient.ensureQueryData(q[0]), queryClient.ensureQueryData(q[1])]).catch(notFoundIfMissing);
+    const tv = await queryClient.ensureQueryData(q[0]).catch(notFoundIfMissing);
 
     let malId: number | null = null;
     if (isAnimeTv(tv)) {
@@ -57,16 +56,8 @@ function TvWatchPage() {
   const { s: season, e: episode } = Route.useSearch();
   const { malId } = Route.useLoaderData();
   const numId = Number(id);
-  const [{ data: tv }, { data: credits }] = useSuspenseQueries({ queries: queries(id) });
+  const [{ data: tv }] = useSuspenseQueries({ queries: queries(id) });
 
-  const cast: CastEntry[] = credits.cast
-    .slice(0, 20)
-    .map((c) => ({
-      personId: c.id,
-      personName: c.name,
-      personImage: profileUrl(c.profile_path, "w185"),
-      character: c.character || "",
-    }));
 
   return (
     <div className="pb-12">
@@ -98,7 +89,6 @@ function TvWatchPage() {
           backdrop={backdropUrl(tv.backdrop_path, "w780")}
           season={season}
           episode={episode}
-          cast={cast}
         />
         <EpisodeNav
           tvId={numId}
